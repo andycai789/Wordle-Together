@@ -1,0 +1,26 @@
+.keyboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 25px;
+}
+
+.keyboard button {
+    border: 0;
+    padding: 0;
+    margin: 10px 6px 0 0;
+    width: 45px;
+    height: 60px;
+    border-radius: 4px;
+    color: white;
+    background-color: #818384;
+    font-weight: bold;
+}
+
+.keyboard .action {
+    width: 60px;
+}
+
+.keyboard button:active {
+    border-style: outset;
+}

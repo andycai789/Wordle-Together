@@ -1,0 +1,24 @@
+.box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 3px;
+    width: 60px;
+    height: 60px;
+    font-size: 30px;
+    background-color: none;
+    border: 2px solid #3a3a3c;
+    color: white;
+}
+
+.green {
+    background-color: #538d4e;
+}
+
+.yellow {
+    background-color: #b59f3b;
+}
+
+.gray {
+    background-color: #3a3a3c;
+}
