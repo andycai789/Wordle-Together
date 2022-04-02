@@ -9,22 +9,21 @@ const inAlphabet = (key) => {
     return (key.length === 1) && (charCode > 64) && (charCode < 91) 
 }
 
-const inWordList = (row, wordList) => {
-    return wordList.includes(convertRowToString(row).toLowerCase())
+const convertBoardRowToString = boardRow => {
+    return boardRow.map(col => col.letter).join('')
+}
+
+const inWordList = (boardRow, wordList) => {
+    return wordList.includes(convertBoardRowToString(boardRow).toLowerCase())
+}
+
+const isWordle = (boardRow, wordle) => {
+    return convertBoardRowToString(boardRow) === wordle.toUpperCase();
 }
 
 const isDeletable = (column) => {
     return column > 0
 }
-
-const isWordle = (row, wordle) => {
-    return convertRowToString(row) === wordle.toUpperCase();
-}
-
-const convertRowToString = row => {
-    return row.map(col => col.letter).join('')
-}
-
   
 const hasFilledRow = (column, maxColumn) => {
     return column === maxColumn
@@ -43,19 +42,6 @@ const createMxNBoard = (m, n) => {
     ))
 }
 
-const getMapOfWord = (word) => {
-    let map = new Map();
-    for (let i = 0; i < word.length; i++) {
-        if (!map.has(word[i])) {
-            map.set(word[i], {val: 1})
-        } else {
-            map.get(word[i]).val++
-        }
-    }
-    return map
-}
-  
-
 const setGreenBoxes = (map, boardRow, wordle) => {
     for (let i = 0; i < boardRow.length; i++) {        
         if (boardRow[i].letter === wordle[i]) {
@@ -67,16 +53,14 @@ const setGreenBoxes = (map, boardRow, wordle) => {
 
 const setYellowBoxes = (map, boardRow) => {
     for (let i = 0; i < boardRow.length; i++) {
-        if (map.has(boardRow[i].letter)) {
-            if (map.get(boardRow[i].letter).val > 0) {
-                boardRow[i].color = 'yellow'
-                map.get(boardRow[i].letter).val--
-            } 
+        if (boardRow[i].color !== 'green' && map.has(boardRow[i].letter) && map.get(boardRow[i].letter).val > 0) {
+            boardRow[i].color = 'yellow'
+            map.get(boardRow[i].letter).val--
         }
     }
 }
 
-const setGreyBoxes = (map, boardRow) => {
+const setGreyBoxes = (boardRow) => {
     for (let i = 0; i < boardRow.length; i++) {
         if (boardRow[i].color === 'empty') {
             boardRow[i].color = 'gray'
@@ -85,10 +69,14 @@ const setGreyBoxes = (map, boardRow) => {
 }
 
 const changeColorsInRow = (boardRow, wordle) => {
-    let map = getMapOfWord(wordle)
-
-    console.log(boardRow)
-    console.log(map)
+    let map = new Map();
+    for (let i = 0; i < wordle.length; i++) {
+        if (!map.has(wordle[i])) {
+            map.set(wordle[i], {val: 1})
+        } else {
+            map.get(wordle[i]).val++
+        }
+    }
     setGreenBoxes(map, boardRow, wordle)
     setYellowBoxes(map, boardRow)
     setGreyBoxes(map, boardRow)
@@ -131,7 +119,7 @@ const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList}) =
             newBoard[row.current][col.current].letter = input.key
             col.current += 1
             setBoard(newBoard)
-        } else if (input.key === 'ENTER' ) {
+        } else if (input.key === 'ENTER') {
             if (!hasFilledRow(col.current, colLength)) {
                 setNotification({visible: true, message: 'Not enough letters'})
                 return

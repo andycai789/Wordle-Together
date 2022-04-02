@@ -10,7 +10,7 @@ function App({rows, columns, wordle, wordList}) {
   } 
 
   const clickKey = (event) => {
-    setUserInput({key: event.target.innerText, time: event.timeStamp})
+    setUserInput({key: event.target.innerText.toUpperCase(), time: event.timeStamp})
   }
 
   useEffect(() => {
