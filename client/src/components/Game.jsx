@@ -55,36 +55,40 @@ const getMapOfWord = (word) => {
     return map
 }
   
-const changeColorsInRow = (boardRow, wordle) => {
-    const setGreenBoxes = (map, boardRow, wordle) => {
-        for (let i = 0; i < boardRow.length; i++) {        
-            if (boardRow[i].letter === wordle[i]) {
-                boardRow[i].color = 'green'
+
+const setGreenBoxes = (map, boardRow, wordle) => {
+    for (let i = 0; i < boardRow.length; i++) {        
+        if (boardRow[i].letter === wordle[i]) {
+            boardRow[i].color = 'green'
+            map.get(boardRow[i].letter).val--
+        } 
+    }
+}
+
+const setYellowBoxes = (map, boardRow) => {
+    for (let i = 0; i < boardRow.length; i++) {
+        if (map.has(boardRow[i].letter)) {
+            if (map.get(boardRow[i].letter).val > 0) {
+                boardRow[i].color = 'yellow'
                 map.get(boardRow[i].letter).val--
             } 
         }
     }
-    
-    const setYellowBoxes = (map, boardRow) => {
-        for (let i = 0; i < boardRow.length; i++) {
-            if (map.has(boardRow[i].letter)) {
-                if (map.get(boardRow[i].letter).val > 0) {
-                    boardRow[i].color = 'yellow'
-                    map.get(boardRow[i].letter).val--
-                } 
-            }
+}
+
+const setGreyBoxes = (map, boardRow) => {
+    for (let i = 0; i < boardRow.length; i++) {
+        if (boardRow[i].color === 'empty') {
+            boardRow[i].color = 'gray'
         }
     }
-    
-    const setGreyBoxes = (map, boardRow) => {
-        for (let i = 0; i < boardRow.length; i++) {
-            if (boardRow[i].color === 'empty') {
-                boardRow[i].color = 'gray'
-            }
-        }
-    }
-  
+}
+
+const changeColorsInRow = (boardRow, wordle) => {
     let map = getMapOfWord(wordle)
+
+    console.log(boardRow)
+    console.log(map)
     setGreenBoxes(map, boardRow, wordle)
     setYellowBoxes(map, boardRow)
     setGreyBoxes(map, boardRow)
@@ -124,10 +128,10 @@ const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList}) =
         }
 
         if (inAlphabet(input.key) && hasEmptyBox(col.current, colLength)) {
-            newBoard[row.current][col.current].letter = input.key.toUpperCase()
+            newBoard[row.current][col.current].letter = input.key
             col.current += 1
             setBoard(newBoard)
-        } else if (input.key === 'Enter' ) {
+        } else if (input.key === 'ENTER' ) {
             if (!hasFilledRow(col.current, colLength)) {
                 setNotification({visible: true, message: 'Not enough letters'})
                 return
@@ -143,7 +147,7 @@ const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList}) =
             row.current += 1
             col.current = 0
             setBoard(newBoard)
-        } else if ((input.key === 'Backspace' || input.key === 'Delete') && isDeletable(col.current)) {
+        } else if ((input.key === 'BACKSPACE' || input.key === 'DELETE') && isDeletable(col.current)) {
             newBoard[row.current][col.current - 1].letter = ''
             col.current -= 1
             setBoard(newBoard)
