@@ -6,7 +6,7 @@ function App({rows, columns, wordle, wordList}) {
   const [userInput, setUserInput] = useState({key: '', time: 0})
 
   const pressKey = (event) => {
-    setUserInput({key: event.key, time: event.timeStamp})
+    setUserInput({key: event.key.toUpperCase(), time: event.timeStamp})
   } 
 
   const clickKey = (event) => {
@@ -14,8 +14,9 @@ function App({rows, columns, wordle, wordList}) {
   }
 
   useEffect(() => {
-    window.addEventListener('keydown', pressKey)
     console.log(wordle)
+
+    window.addEventListener('keydown', pressKey)
 
     return () => {
         window.removeEventListener('keydown', pressKey)
@@ -30,8 +31,7 @@ function App({rows, columns, wordle, wordList}) {
             colLength={columns} 
             wordle={wordle}
             handleKeyClick={clickKey}
-            wordList={wordList}
-      />
+            wordList={wordList}/>
     </div>
   )
 }

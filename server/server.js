@@ -1,12 +1,37 @@
-const express = require('express');
+
+function randInt(lessThan) {
+  return Math.floor(Math.random() * lessThan);
+}
+
+function getRandomWordle(wordList) {
+  return wordList[randInt(wordList.length)].toUpperCase(); 
+}
+
+function getNLengthWordList(n) {
+  const fs = require('fs')
+  let rawData = fs.readFileSync(`wordLists/${n}words.json`)
+  return JSON.parse(rawData)
+}
+
 const path = require('path');
+const express = require('express');
 const app = express();
+const port = 5000;
 
-app.use(express.static(path.join(__dirname, '../client/build')));
+app.use(express.static(__dirname + "/../client/build"));
 
-app.get('/', function (req, res) {
-    console.log("REACHED")
-  res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
-});
+app.get('/', (req, res) => {
+  res.redirect('index.html')
+})
 
-app.listen(3000);
+app.get('/settings', (req, res) => {
+  let wordList = getNLengthWordList(7)
+
+  let settings = {'rows': 7, 'cols': 7, 'wordle': 'GRAHAMS', 'wordList': wordList}
+  res.send(settings)
+})
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`)
+})
+

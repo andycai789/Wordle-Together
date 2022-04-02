@@ -6,7 +6,6 @@
 }
 
 .board {
-    display: inline-block;
     margin-top: 25px;
     overflow-y: auto;
     overflow-x: hidden;
