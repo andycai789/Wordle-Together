@@ -1,10 +1,12 @@
-const express = require('express')
-const app = express()
+const express = require('express');
+const path = require('path');
+const app = express();
 
-app.listen(3000)
+app.use(express.static(path.join(__dirname, '../client/build')));
 
-app.get('/asdf', (req, res) => {
-    console.log('Here')
+app.get('/', function (req, res) {
+    console.log("REACHED")
+  res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+});
 
-    res.send("asdf")
-})
+app.listen(3000);

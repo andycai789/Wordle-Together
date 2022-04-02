@@ -2,10 +2,7 @@ import { useState, useEffect } from 'react'
 import Header from './components/Header.jsx'
 import Game from './components/Game.jsx'
 
-function App() {
-  const rows = 7
-  const columns = 7
-  const wordle = "fuzzbox".toUpperCase()
+function App({rows, columns, wordle, wordList}) {
   const [userInput, setUserInput] = useState({key: '', time: 0})
 
   const pressKey = (event) => {
@@ -18,6 +15,7 @@ function App() {
 
   useEffect(() => {
     window.addEventListener('keydown', pressKey)
+    console.log(wordle)
 
     return () => {
         window.removeEventListener('keydown', pressKey)
@@ -32,6 +30,7 @@ function App() {
             colLength={columns} 
             wordle={wordle}
             handleKeyClick={clickKey}
+            wordList={wordList}
       />
     </div>
   )

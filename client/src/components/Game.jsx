@@ -9,17 +9,22 @@ const inAlphabet = (key) => {
     return (key.length === 1) && (charCode > 64) && (charCode < 91) 
 }
 
-const inDictionary = (boardRow) => {
-    return true
+const inWordList = (row, wordList) => {
+    return wordList.includes(convertRowToString(row).toLowerCase())
 }
 
 const isDeletable = (column) => {
     return column > 0
 }
 
-const isWordle = (userWord, wordle) => {
-    return userWord.map(object => object.letter).join("") === wordle.toUpperCase();
+const isWordle = (row, wordle) => {
+    return convertRowToString(row) === wordle.toUpperCase();
 }
+
+const convertRowToString = row => {
+    return row.map(col => col.letter).join('')
+}
+
   
 const hasFilledRow = (column, maxColumn) => {
     return column === maxColumn
@@ -85,7 +90,7 @@ const changeColorsInRow = (boardRow, wordle) => {
     setGreyBoxes(map, boardRow)
 }
   
-const Game = ({input, rowLength, colLength, wordle, handleKeyClick}) => {
+const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList}) => {
     const [board, setBoard] = useState(createMxNBoard(rowLength, colLength))    
     const [notification, setNotification] = useState({visible: false, message: 'empty'})
     const row = useRef(0)
@@ -99,14 +104,14 @@ const Game = ({input, rowLength, colLength, wordle, handleKeyClick}) => {
     useEffect(() => {
         const checkWinConditions = (newBoard) => {
             if (isWordle(newBoard[row.current], wordle)) {
+                isEndGame.current = true
                 setTimeout(() => {
                     setNotification({visible: true, message: 'YOU WON'})
-                    isEndGame.current = true
                 }, 1500)
             } else if (row.current === rowLength - 1){
+                isEndGame.current = true
                 setTimeout(() => {
                     setNotification({visible: true, message: 'YOU LOST'})
-                    isEndGame.current = true
                 }, 1500)
             }
         }
@@ -128,7 +133,7 @@ const Game = ({input, rowLength, colLength, wordle, handleKeyClick}) => {
                 return
             }
 
-            if (!inDictionary(newBoard[row.current])) {
+            if (!inWordList(newBoard[row.current], wordList)) {
                 setNotification({visible: true, message: 'Not in word list'})
                 return 
             }
