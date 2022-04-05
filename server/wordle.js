@@ -6,7 +6,7 @@ class Wordle {
         this.maxCol = col
         this.curRow = 0
         this.curCol = 0
-        this.wordList = wordList
+        this.wordList = new Set(wordList)
         this.endGameStatus = false
     }
 
@@ -31,7 +31,7 @@ class Wordle {
     }
 
     inWordList() {
-        return this.wordList.includes(this.convertBoardRowToString(this.board[this.curRow]).toLowerCase())
+        return this.wordList.has(this.convertBoardRowToString(this.board[this.curRow]).toLowerCase())
     }
     
     isDeletable() {

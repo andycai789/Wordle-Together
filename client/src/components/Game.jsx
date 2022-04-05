@@ -25,7 +25,7 @@ const inAlphabet = (key) => {
 }
 
 const inWordList = (boardRow, wordList) => {
-    return wordList.includes(convertBoardRowToString(boardRow).toLowerCase())
+    return wordList.has(convertBoardRowToString(boardRow).toLowerCase())
 }
 
 const isWordle = (boardRow, wordle) => {
