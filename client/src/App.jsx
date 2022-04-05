@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import Header from './components/Header.jsx'
 import Game from './components/Game.jsx'
 
-function App({rows, columns, wordle}) {
+function App({rows, columns, wordle, wordList}) {
   const [userInput, setUserInput] = useState({key: '', time: 0})
 
   const pressKey = (event) => {
@@ -37,7 +37,8 @@ function App({rows, columns, wordle}) {
             rowLength={rows} 
             colLength={columns} 
             wordle={wordle}
-            handleKeyClick={clickKey}/>
+            handleKeyClick={clickKey}
+            wordList={wordList}/>
     </div>
   )
 }

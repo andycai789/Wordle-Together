@@ -10,7 +10,7 @@ async function startWordleWithFriends() {
   
   ReactDOM.render(
     <React.StrictMode>
-      <App rows={settings.rows} columns={settings.cols} wordle={settings.wordle}/>
+      <App rows={settings.rows} columns={settings.cols} wordle={settings.wordle} wordList={settings.wordList}/>
     </React.StrictMode>,
     document.getElementById('root')
   );

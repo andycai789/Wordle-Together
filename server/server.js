@@ -31,7 +31,8 @@ app.use(express.json());
 
 app.get('/settings', (req, res) => {
   let wordList = getNLengthWordList(7)
-  res.send({rows: 7, cols: 7, wordle: 'GRAHAMS'})
+  let settings = {'rows': 7, 'cols': 7, 'wordle': 'GRAHAMS', 'wordList': wordList}
+  res.send(settings)
 })
 
 app.get('/board', (req, res) => {
@@ -44,6 +45,8 @@ app.put('/input', (req, res) => {
   console.log(inputKey)
   console.log("PRESSED")
   let result = wordle.accept(inputKey)
+  console.log(wordle.getBoard())
+
   res.send(JSON.stringify("Received post request"))
 })
 
