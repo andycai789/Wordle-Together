@@ -17,6 +17,14 @@ function App({rows, columns, wordle, wordList}) {
   } 
 
   const clickKey = (event) => {
+    fetch('/input', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({key: event.target.innerText.toUpperCase()}),
+    })
+
     setUserInput({key: event.target.innerText.toUpperCase(), time: event.timeStamp})
   }
 

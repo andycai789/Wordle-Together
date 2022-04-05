@@ -1,15 +1,13 @@
 class Wordle {
-    constructor(row, col, wordle) {
+    constructor(row, col, wordle, wordList) {
         this.board = this.createMxNBoard(row, col)
         this.wordle = wordle
         this.maxRow = row
         this.maxCol = col
         this.curRow = 0
         this.curCol = 0
-    }
-
-    getRow() {
-        return this.curRow
+        this.wordList = wordList
+        this.endGameStatus = false
     }
 
     getDefaultBoxValues() {
@@ -23,21 +21,17 @@ class Wordle {
         return Array(m).fill().map(()=>Array(n).fill().map(() => this.getDefaultBoxValues()))
     }
 
+    convertBoardRowToString(boardRow) {
+        return boardRow.map(col => col.letter).join('')
+    }
+
     inAlphabet(key) {    
         const charCode = key.toUpperCase().charCodeAt(0)
         return (key.length === 1) && (charCode > 64) && (charCode < 91) 
     }
-    
-    convertBoardRowToString(boardRow) {
-        return boardRow.map(col => col.letter).join('')
-    }
-    
-    inWordList(boardRow, wordList) {
-        return wordList.includes(this.convertBoardRowToString(boardRow).toLowerCase())
-    }
-    
-    isWordle(boardRow, wordle) {
-        return this.convertBoardRowToString(boardRow) === wordle.toUpperCase();
+
+    inWordList() {
+        return this.wordList.includes(this.convertBoardRowToString(this.board[this.curRow]).toLowerCase())
     }
     
     isDeletable() {
@@ -116,34 +110,54 @@ class Wordle {
         this.board[this.curRow][this.curCol - 1].letter = ''
     }
 
-    accept(inputKey) {
-        if (this.inAlphabet(inputKey) && this.hasEmptyBox()) {
-            this.addKeyToBoard(inputKey)
-            this.moveToNextCol()
-        } else if (inputKey === 'ENTER') {
-            if (!this.hasFilledRow()) {
-                console.log("HAS NOT FILLED ROW")
-                // setNotification({visible: true, message: 'Not enough letters'})
-            }
+    isEndGame() {
+        return this.endGameStatus
+    }
 
-            // if (!inWordList(newBoard[row.current], wordList)) {
-            //     console.log("NOT IN WORD LIST")
-            //     // setNotification({visible: true, message: 'Not in word list'})
-            // }
+    isVictory() {
+        return this.convertBoardRowToString(this.board[this.curRow - 1]) === 
+                this.wordle.toUpperCase();
+    }
 
-            this.changeColorsInRow()
-            // checkWinConditions(board)
-            this.moveToNextRow()
-        } else if ((inputKey === 'BACKSPACE' || inputKey === 'DELETE') && this.isDeletable()) {
-            this.removePrevKeyFromBoard()
-            this.moveToPrevCol()
-        }
+    isDefeat() {
+        return this.curRow === this.maxRow
+    
     }
 
     getBoard() {
         return this.board
     }
 
+    accept(inputKey) {
+        if (this.inAlphabet(inputKey) && this.hasEmptyBox()) {
+            this.addKeyToBoard(inputKey)
+            this.moveToNextCol()
+        } else if (inputKey === 'ENTER') {
+            if (!this.hasFilledRow()) {
+                return {endGame: false, message: 'Not enough letters.'}
+            }
+
+            if (!this.inWordList()) {
+                return {endGame: false, message: 'Not in word list.'}
+            }
+
+            this.changeColorsInRow()
+            this.moveToNextRow()
+
+            if (this.isVictory()) {
+                this.endGameStatus = true
+                return {endGame: true, message: 'You won!'}
+            } else if (this.isDefeat()) {
+                this.endGameStatus = true
+                return {endGame: true, message: 'You lost!'}
+            }
+        } else if ((inputKey === 'BACKSPACE' || inputKey === 'DELETE') && this.isDeletable()) {
+            this.removePrevKeyFromBoard()
+            this.moveToPrevCol()
+        }
+
+        return {endGame: false, message: ''}
+    }
 }
 
 

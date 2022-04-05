@@ -16,8 +16,9 @@ const path = require('path');
 const express = require('express');
 const app = express();
 const port = 5000;
+const wordList = getNLengthWordList(7)
 const Wordle = require('./wordle.js')
-let wordle = new Wordle(7, 7, 'GRAHAMS')
+let wordle = new Wordle(3, 7, 'GRAHAMS', wordList)
 
 
 // app.use(express.static(__dirname + "/../client/build"));
@@ -30,8 +31,7 @@ app.use(express.json());
 
 
 app.get('/settings', (req, res) => {
-  let wordList = getNLengthWordList(7)
-  let settings = {'rows': 7, 'cols': 7, 'wordle': 'GRAHAMS', 'wordList': wordList}
+  let settings = {'rows': 3, 'cols': 7, 'wordle': 'GRAHAMS', 'wordList': wordList}
   res.send(settings)
 })
 
@@ -41,11 +41,16 @@ app.get('/board', (req, res) => {
 })
 
 app.put('/input', (req, res) => {
-  let inputKey = req.body.key
-  console.log(inputKey)
-  console.log("PRESSED")
-  let result = wordle.accept(inputKey)
-  console.log(wordle.getBoard())
+
+  if (!wordle.isEndGame()) {
+    let inputKey = req.body.key
+    let result = wordle.accept(inputKey)
+    console.log(wordle.getBoard())
+    console.log(inputKey)
+    console.log(result)
+  } else {
+    console.log("GAME HAS ENDED NO MORE INPUTS")
+  }
 
   res.send(JSON.stringify("Received post request"))
 })

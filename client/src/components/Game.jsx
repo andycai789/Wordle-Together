@@ -4,13 +4,24 @@ import Notification from './Notification.jsx'
 import Board from './Board.jsx'
 import Keyboard from './Keyboard.jsx'
 
-const inAlphabet = (key) => {    
-    const charCode = key.toUpperCase().charCodeAt(0)
-    return (key.length === 1) && (charCode > 64) && (charCode < 91) 
+const getDefaultBoxValues = () => {
+    return {
+        color: 'empty',
+        letter: ''
+    }
+}
+
+const createMxNBoard = (m, n) => {
+    return Array(m).fill().map(()=>Array(n).fill().map(() => getDefaultBoxValues()))
 }
 
 const convertBoardRowToString = boardRow => {
     return boardRow.map(col => col.letter).join('')
+}
+
+const inAlphabet = (key) => {    
+    const charCode = key.toUpperCase().charCodeAt(0)
+    return (key.length === 1) && (charCode > 64) && (charCode < 91) 
 }
 
 const inWordList = (boardRow, wordList) => {
@@ -31,15 +42,6 @@ const hasFilledRow = (column, maxColumn) => {
   
 const hasEmptyBox = (column, maxColumn) => {
     return column < maxColumn
-}
-
-const createMxNBoard = (m, n) => {
-    return Array.from({length: m}, () => new Array(n).fill(
-        {
-            color: 'empty',
-            letter: ''
-        }
-    ))
 }
 
 const setGreenBoxes = (map, boardRow, wordle) => {
@@ -84,34 +86,20 @@ const changeColorsInRow = (boardRow, wordle) => {
   
 const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList}) => {
     const [board, setBoard] = useState(createMxNBoard(rowLength, colLength))    
-    const [notification, setNotification] = useState({visible: false, message: 'empty'})
     const row = useRef(0)
     const col = useRef(0)
     const isEndGame = useRef(false)
 
-    const hidePopUp = () => {
-        setNotification({visible: false, message: notification.message})
-    }
-
     useEffect(() => {
         const checkWinConditions = (newBoard) => {
-            if (isWordle(newBoard[row.current], wordle)) {
+            if (isWordle(newBoard[row.current], wordle) || (row.current === rowLength - 1)) {
                 isEndGame.current = true
-                setTimeout(() => {
-                    setNotification({visible: true, message: 'YOU WON'})
-                }, 1500)
-            } else if (row.current === rowLength - 1){
-                isEndGame.current = true
-                setTimeout(() => {
-                    setNotification({visible: true, message: 'YOU LOST'})
-                }, 1500)
             }
         }
 
         const newBoard = JSON.parse(JSON.stringify(board))
 
         if (isEndGame.current){
-            setNotification({visible: true, message: 'GAME FINISHED'})
             return
         }
 
@@ -121,12 +109,10 @@ const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList}) =
             setBoard(newBoard)
         } else if (input.key === 'ENTER') {
             if (!hasFilledRow(col.current, colLength)) {
-                setNotification({visible: true, message: 'Not enough letters'})
                 return
             }
 
             if (!inWordList(newBoard[row.current], wordList)) {
-                setNotification({visible: true, message: 'Not in word list'})
                 return 
             }
 
@@ -144,7 +130,7 @@ const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList}) =
 
     return (
         <div>
-            <Notification notification={notification} hidePopUp={hidePopUp}/>
+            {/* <Notification notification={notification} hidePopUp={hidePopUp}/> */}
             <Board board={board}/>
             <Keyboard board={board} onKeyClick={handleKeyClick}/>
         </div>
