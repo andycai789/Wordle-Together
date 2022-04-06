@@ -2,29 +2,26 @@ import { useState, useEffect } from 'react'
 import Header from './components/Header.jsx'
 import Game from './components/Game.jsx'
 
+import {io} from 'socket.io-client'
+
+const socket = io()
+
+socket.on('connect', () => {
+  console.log(socket.id)
+})
+
+
+
 function App({rows, columns, wordle, wordList}) {
   const [userInput, setUserInput] = useState({key: '', time: 0})
 
   const pressKey = (event) => {
-    fetch('/input', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({key: event.key.toUpperCase()}),
-    })
+    socket.emit('key', event.key.toUpperCase())
     setUserInput({key: event.key.toUpperCase(), time: event.timeStamp})
   } 
 
   const clickKey = (event) => {
-    fetch('/input', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({key: event.target.innerText.toUpperCase()}),
-    })
-
+    socket.emit('key', event.target.innerText.toUpperCase())
     setUserInput({key: event.target.innerText.toUpperCase(), time: event.timeStamp})
   }
 
@@ -46,7 +43,8 @@ function App({rows, columns, wordle, wordList}) {
             colLength={columns} 
             wordle={wordle}
             handleKeyClick={clickKey}
-            wordList={wordList}/>
+            wordList={wordList}
+            socket={socket}/>
     </div>
   )
 }

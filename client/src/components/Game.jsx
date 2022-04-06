@@ -32,6 +32,10 @@ const isWordle = (boardRow, wordle) => {
     return convertBoardRowToString(boardRow) === wordle.toUpperCase();
 }
 
+const isPastMaxRow = (curRow, maxRow) => {
+    return curRow === maxRow
+}
+
 const isDeletable = (column) => {
     return column > 0
 }
@@ -84,24 +88,30 @@ const changeColorsInRow = (boardRow, wordle) => {
     setGreyBoxes(map, boardRow)
 }
   
-const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList}) => {
+const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList, socket}) => {
     const [board, setBoard] = useState(createMxNBoard(rowLength, colLength))    
     const row = useRef(0)
     const col = useRef(0)
     const isEndGame = useRef(false)
 
-    useEffect(() => {
-        const checkWinConditions = (newBoard) => {
-            if (isWordle(newBoard[row.current], wordle) || (row.current === rowLength - 1)) {
-                isEndGame.current = true
-            }
+    const checkWinConditions = (newBoard) => {
+        if (isWordle(newBoard[row.current], wordle) || isPastMaxRow(row.current, rowLength - 1)) {
+            isEndGame.current = true
         }
+    }
 
-        const newBoard = JSON.parse(JSON.stringify(board))
+    socket.on('board', board => {
+        setBoard(board)
+    })
 
+    useEffect(() => {
         if (isEndGame.current){
             return
         }
+
+
+        const newBoard = JSON.parse(JSON.stringify(board))
+
 
         if (inAlphabet(input.key) && hasEmptyBox(col.current, colLength)) {
             newBoard[row.current][col.current].letter = input.key

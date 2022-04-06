@@ -1,64 +1,50 @@
-function randInt(lessThan) {
-  return Math.floor(Math.random() * lessThan);
-}
-
-function getRandomWordle(wordList) {
-  return wordList[randInt(wordList.length)].toUpperCase(); 
-}
-
-function getNLengthWordList(n) {
-  const fs = require('fs')
-  let rawData = fs.readFileSync(`wordLists/${n}words.json`)
-  return JSON.parse(rawData)
-}
-
-const path = require('path');
-const express = require('express');
-const app = express();
-const port = 5000;
-const wordList = getNLengthWordList(7)
+const wordGenerator = require('./wordGenerator.js')
 const Wordle = require('./wordle.js')
-let wordle = new Wordle(3, 7, 'GRAHAMS', wordList)
 
+const wordList = wordGenerator.getNLengthWordList(7)
+let game = new Wordle(3, 7, 'GRAHAMS', wordList)
+
+const path = require('path')
+const http = require('http')
+const express = require('express')
+const socketio = require('socket.io')
+
+const port = process.env.PORT || 5000
+const app = express()
+const server = http.createServer(app)
+const io = socketio(server)
 
 // app.use(express.static(__dirname + "/../client/build"));
+app.use(express.json())
 
 // app.get('/', (req, res) => {
 //   res.redirect('index.html')
 // })
-
-app.use(express.json());
-
 
 app.get('/settings', (req, res) => {
   let settings = {'rows': 3, 'cols': 7, 'wordle': 'GRAHAMS', 'wordList': wordList}
   res.send(settings)
 })
 
-app.get('/board', (req, res) => {
-  console.log(wordle.getBoard())
-  res.send({board: wordle.getBoard()})
+io.on('connection', socket => {
+  console.log("SERVER")
+  console.log(socket.id)
+
+  socket.on('key', key => {
+    if (!game.isEndGame()) {
+      let result = game.accept(key)
+      console.log(game.getBoard())
+      console.log(key)
+      console.log(result)
+
+      socket.broadcast.emit('board', game.getBoard())
+
+    } else {
+      console.log("GAME HAS ENDED NO MORE INPUTS")
+    }
+  })
 })
 
-app.put('/input', (req, res) => {
-
-  if (!wordle.isEndGame()) {
-    let inputKey = req.body.key
-    let result = wordle.accept(inputKey)
-    console.log(wordle.getBoard())
-    console.log(inputKey)
-    console.log(result)
-  } else {
-    console.log("GAME HAS ENDED NO MORE INPUTS")
-  }
-
-  res.send(JSON.stringify("Received post request"))
-})
-
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
-
-
-
-
