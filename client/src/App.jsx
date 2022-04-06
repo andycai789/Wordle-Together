@@ -16,14 +16,10 @@ function App({rows, columns, wordle, wordList}) {
   const [userInput, setUserInput] = useState({key: '', time: 0})
 
   const pressKey = (event) => {
-    socket.emit('key', event.key.toUpperCase())
-    setUserInput({key: event.key.toUpperCase(), time: event.timeStamp})
+    let key = (event instanceof KeyboardEvent) ? event.key.toUpperCase() : event.target.innerText.toUpperCase()
+    socket.emit('key', key)
+    setUserInput({key: key, time: event.timeStamp})
   } 
-
-  const clickKey = (event) => {
-    socket.emit('key', event.target.innerText.toUpperCase())
-    setUserInput({key: event.target.innerText.toUpperCase(), time: event.timeStamp})
-  }
 
   useEffect(() => {
     console.log(wordle)
@@ -42,7 +38,7 @@ function App({rows, columns, wordle, wordList}) {
             rowLength={rows} 
             colLength={columns} 
             wordle={wordle}
-            handleKeyClick={clickKey}
+            handleKeyClick={pressKey}
             wordList={wordList}
             socket={socket}/>
     </div>
