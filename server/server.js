@@ -21,17 +21,12 @@ app.use(express.json())
 //   res.redirect('index.html')
 // })
 
-app.get('/settings', (req, res) => {
-  let settings = {'rows': 3, 'cols': 7, 'wordle': 'GRAHAMS', 'wordList': wordList}
-  res.send(settings)
-})
-
 io.on('connection', socket => {
   console.log("SERVER")
   console.log(socket.id)
 
   socket.on('key', key => {
-    if (!game.isEndGame()) {
+    if (!game.isEndGame()) { 
       let result = game.accept(key)
       console.log(game.getBoard())
       console.log(key)
@@ -43,6 +38,13 @@ io.on('connection', socket => {
       console.log("GAME HAS ENDED NO MORE INPUTS")
     }
   })
+
+  socket.on('onGamePage', (x) => {
+    console.log(x)
+    socket.emit('settings', 
+      {rows: 3, cols: 7, wordle: 'GRAHAMS', wordList: wordList})
+  })
+
 })
 
 server.listen(port, () => {

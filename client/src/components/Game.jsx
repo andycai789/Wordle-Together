@@ -15,7 +15,7 @@ const createMxNBoard = (m, n) => {
     return Array(m).fill().map(()=>Array(n).fill().map(() => getDefaultBoxValues()))
 }
 
-const convertBoardRowToString = boardRow => {
+const convertBoardRowToString = (boardRow) => {
     return boardRow.map(col => col.letter).join('')
 }
 
@@ -28,24 +28,24 @@ const inWordList = (boardRow, wordList) => {
     return wordList.has(convertBoardRowToString(boardRow).toLowerCase())
 }
 
+const isDeletable = (column) => {
+    return column > 0
+}
+
+const hasFilledRow = (column, maxColumn) => {
+    return column === maxColumn
+}
+
+const hasEmptyBox = (column, maxColumn) => {
+    return column < maxColumn
+}
+
 const isWordle = (boardRow, wordle) => {
     return convertBoardRowToString(boardRow) === wordle.toUpperCase();
 }
 
 const isPastMaxRow = (curRow, maxRow) => {
     return curRow === maxRow
-}
-
-const isDeletable = (column) => {
-    return column > 0
-}
-  
-const hasFilledRow = (column, maxColumn) => {
-    return column === maxColumn
-}
-  
-const hasEmptyBox = (column, maxColumn) => {
-    return column < maxColumn
 }
 
 const setGreenBoxes = (map, boardRow, wordle) => {
@@ -109,9 +109,7 @@ const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList, so
             return
         }
 
-
         const newBoard = JSON.parse(JSON.stringify(board))
-
 
         if (inAlphabet(input.key) && hasEmptyBox(col.current, colLength)) {
             newBoard[row.current][col.current].letter = input.key
@@ -123,6 +121,7 @@ const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList, so
             }
 
             if (!inWordList(newBoard[row.current], wordList)) {
+                console.log("NOT IN LIST")
                 return 
             }
 
@@ -148,9 +147,3 @@ const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList, so
 }
 
 export default Game
-
-
-// fetch('/board')
-// .then(response => response.json())
-// .then(data => {
-//     setBoard(data.board)})

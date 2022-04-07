@@ -1,8 +1,15 @@
-import { useState, useEffect } from 'react'
 import Header from './components/Header.jsx'
-import Game from './components/Game.jsx'
+import GamePage from './components/GamePage.jsx'
+import LobbyPage from './components/LobbyPage.jsx'
+import HomePage from './components/HomePage.jsx'
 
 import {io} from 'socket.io-client'
+import {useState} from 'react'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+} from "react-router-dom";
 
 const socket = io()
 
@@ -10,38 +17,24 @@ socket.on('connect', () => {
   console.log(socket.id)
 })
 
-
-
-function App({rows, columns, wordle, wordList}) {
-  const [userInput, setUserInput] = useState({key: '', time: 0})
-
-  const pressKey = (event) => {
-    let key = (event instanceof KeyboardEvent) ? event.key.toUpperCase() : event.target.innerText.toUpperCase()
-    socket.emit('key', key)
-    setUserInput({key: key, time: event.timeStamp})
-  } 
-
-  useEffect(() => {
-    console.log(wordle)
-
-    window.addEventListener('keydown', pressKey)
-
-    return () => {
-        window.removeEventListener('keydown', pressKey)
-    }
-  }, [])
+function App() {
+  const [settings, setSettings] = useState({})
 
   return (
-    <div className='App'>
+    <Router>
       <Header/>
-      <Game input={userInput} 
-            rowLength={rows} 
-            colLength={columns} 
-            wordle={wordle}
-            handleKeyClick={pressKey}
-            wordList={wordList}
-            socket={socket}/>
-    </div>
+
+      <Routes> 
+        <Route path='/' element={<HomePage socket={socket}/>}/>
+
+        <Route path='/lobby' element={<LobbyPage onSettingChange={setSettings}/>}/>
+
+        <Route path='/game' element={<GamePage socket={socket} settings={settings}/>}/> 
+      </Routes>
+
+    </Router>
+
+
   )
 }
 

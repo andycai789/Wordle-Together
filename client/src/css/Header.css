@@ -5,5 +5,14 @@
     font-size: 32px;
     font-weight: bold;
     font-family: "Snell Roundhand", cursive;
-    
 }
+
+#headerLink {
+    text-decoration: none;
+    color: white;
+}
+
+#headerLink:hover {
+    color: grey;
+}
+
