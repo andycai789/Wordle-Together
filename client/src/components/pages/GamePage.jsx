@@ -1,6 +1,6 @@
 import React from 'react'
 import {useState, useEffect, useRef} from 'react'
-import Game from './Game.jsx'
+import Game from '../Game.jsx'
 
 const GamePage = ({socket, settings}) => {
     const [userInput, setUserInput] = useState({key: '', time: 0})

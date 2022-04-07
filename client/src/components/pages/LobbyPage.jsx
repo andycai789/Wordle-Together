@@ -1,6 +1,7 @@
 import React from 'react'
 import {Link} from "react-router-dom";
-  
+import '../../css/LobbyPage.css';
+
 const LobbyPage = ({socket, onSettingChange}) => {
 
     let setting = {rows: 3, cols: 7, wordle: 'GRAHAMS', wordList: []}

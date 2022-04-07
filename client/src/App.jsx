@@ -1,15 +1,12 @@
-import Header from './components/Header.jsx'
-import GamePage from './components/GamePage.jsx'
-import LobbyPage from './components/LobbyPage.jsx'
-import HomePage from './components/HomePage.jsx'
-
 import {io} from 'socket.io-client'
 import {useState} from 'react'
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-} from "react-router-dom";
+import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
+
+import Header from './components/Header.jsx'
+import GamePage from './components/pages/GamePage.jsx'
+import LobbyPage from './components/pages/LobbyPage.jsx'
+import HomePage from './components/pages/HomePage.jsx'
+
 
 const socket = io()
 

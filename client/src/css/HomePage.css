@@ -1,0 +1,41 @@
+.HomePage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.toCreateLobby {
+    margin-top: 100px;
+    text-decoration: none;
+}
+
+.toJoinLobby {
+    margin-top: 100px;
+    text-decoration: none;
+}
+
+.input {
+    margin-top: 30px;
+}
+
+.inputBar {
+    text-align: center;
+    font-size: 25px;
+    width: 200px;
+    height: 50px;
+    background-color: #121213;
+    border: 2px solid #3a3a3c;
+    color: white;
+    text-transform: uppercase;
+}
+
+.inputBar:focus {
+    outline: 1px solid white;
+    text-transform: uppercase;
+    background-color: #3a3a3c;
+}
+
+.inputBar:hover {
+    background-color: #3a3a3c;
+}
+
