@@ -4,18 +4,23 @@
     align-items: center;
 }
 
+.nameBox {
+    margin-top: 50px
+
+}
+
 .toCreateLobby {
-    margin-top: 100px;
+    margin-top: 50px;
     text-decoration: none;
 }
 
 .toJoinLobby {
-    margin-top: 100px;
+    margin-top: 50px;
     text-decoration: none;
 }
 
 .input {
-    margin-top: 30px;
+    margin-top: 15px;
 }
 
 .inputBar {

@@ -1,4 +1,3 @@
-import React from 'react'
 import {Link} from "react-router-dom";
 import '../../css/LobbyPage.css';
 
@@ -8,11 +7,21 @@ const LobbyPage = ({socket, onSettingChange}) => {
 
     return (
         <div>
-            <h1> Settings </h1>
-            <h2> Number of rows: min 5</h2>
-            <h3> Number of columns: min 5</h3>
 
-            
+            <div className="settings">
+
+                {Array.from({length: 16}, (_, i) => <button> {i + 5}</button>)}
+                {Array.from({length: 16}, (_, i) => <button> {i + 5}</button>)}
+
+                make an exit
+
+
+            </div>
+
+
+
+
+
 
             <Link to='/game' onClick={() => onSettingChange(setting)}> GO TO GAME </Link>
 

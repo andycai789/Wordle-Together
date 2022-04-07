@@ -27,6 +27,15 @@ const HomePage = ({socket}) => {
 
   return (
     <div className='HomePage' onClick={() => console.log("CLICKED")}>
+
+      <div className="nameBox">
+        <Row row={formatToRow("NAME", 'zzzzz')}/>
+      </div>
+
+      <form className='input'>
+        <input className='inputBar' type="text" name="name" />
+      </form>
+
       <Link className='toCreateLobby' to='/lobby'
         onMouseEnter={() => setCreateLight("gggggg")}
         onMouseLeave={() => setCreateLight("zzzzzz")}>
@@ -34,7 +43,6 @@ const HomePage = ({socket}) => {
         <Row row={formatToRow("CREATE", createLight)}/>
         <Row row={formatToRow("ROOM  ", createLight)}/> 
       </Link>
-
 
       <Link className='toJoinLobby' to='/lobby'
         onMouseEnter={() => setJoinLight("yyyyyy")}

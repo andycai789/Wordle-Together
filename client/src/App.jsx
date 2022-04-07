@@ -7,7 +7,6 @@ import GamePage from './components/pages/GamePage.jsx'
 import LobbyPage from './components/pages/LobbyPage.jsx'
 import HomePage from './components/pages/HomePage.jsx'
 
-
 const socket = io()
 
 socket.on('connect', () => {
