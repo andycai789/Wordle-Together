@@ -19,18 +19,12 @@ function App() {
   return (
     <Router>
       <Header/>
-
       <Routes> 
         <Route path='/' element={<HomePage socket={socket}/>}/>
-
-        <Route path='/lobby' element={<LobbyPage onSettingChange={setSettings}/>}/>
-
+        <Route path='/lobby' element={<LobbyPage onSettingsChange={setSettings}/>}/>
         <Route path='/game' element={<GamePage socket={socket} settings={settings}/>}/> 
       </Routes>
-
     </Router>
-
-
   )
 }
 
