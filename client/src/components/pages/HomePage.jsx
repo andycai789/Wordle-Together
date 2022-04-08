@@ -33,7 +33,7 @@ const HomePage = ({socket}) => {
       </div>
 
       <form className='input'>
-        <input className='inputBar' type="text" name="name" />
+        <input className='inputBar' type="text" name="name" maxLength="7"/>
       </form>
 
       <Link className='toCreateLobby' to='/lobby'
