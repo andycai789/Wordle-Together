@@ -1,5 +1,5 @@
 import {Link} from "react-router-dom";
-import {useState, useRef} from 'react'
+import {useState, useEffect} from 'react'
 import '../../css/LobbyPage.css';
 import Row from '../Row.jsx';
 
@@ -9,26 +9,52 @@ const formatToRow = (word) => {
   }
 
 const LobbyPage = ({socket, onSettingsChange}) => {
-    let setting = {rows: 3, cols: 7, wordle: 'GRAHAMS', wordList: []}
-    let players = ["Ansadf", "Bnasdf", "Cnasdf", "Dnsdf", "Enweqr", "Fnzxcv", "Gnzxcv", "Hnzxcv", "Inzxcv"]
-    const rows = useRef(5)
-    const cols = useRef(5)
+    const [rowInput, setRowInput] = useState(5)
+    const [colInput, setColInput] = useState(5)
+    const [players, setPlayers] = useState([])
+    const [isClient, setIsClient] = useState(true)
+    const [roomCode, setRoomCode] = useState(socket.id)
+    const [settings, setSettings] = useState({})
 
-    // socket on new player, add new player name most likely need to use useState to update the page
+    useEffect(() => {
+        socket.on('changeCode', (response) => {
+            setRoomCode(response)
+        })
+    
+        socket.on('players', (response) => {
+            setPlayers(response)
+        })
+    
+        socket.on('checkIfClient', (response) => {
+            setIsClient(response)
+        })
+    
+        socket.on('changeRowSelect', (newRow) => {
+            setRowInput(newRow)
+        })
+    
+        socket.on('changeColSelect', (newCol) => {
+            setColInput(newCol)
+        })
+    
+        socket.on('changeSettings', (settings) => {
+            console.log(settings)
+            onSettingsChange(settings)
+        })  
+    }, [])
 
     const changeRows = (event) => {
-        rows.current = event.target.value
+        setRowInput(event.target.value)
+        socket.emit('newRowSelect', event.target.value)
     }
 
     const changeCols = (event) => {
-        cols.current = event.target.value
+        setColInput(event.target.value)
+        socket.emit('newColSelect', event.target.value)
     }
 
     const startGame = (event) => {
-        // if leader allow button presses to startgame
-        // emit rows, cols
-        // emit to get all settings
-        // on sendsettings onSettingsChange(newSettings)
+        socket.emit('startGame', rowInput, colInput)
     }
 
     return (
@@ -37,30 +63,35 @@ const LobbyPage = ({socket, onSettingsChange}) => {
                 <div className='title'> Settings </div>
 
                 <div className='settingsForm'>
+                    <div> Code: </div>
+                    {roomCode}
+                </div>
+
+                <div className='settingsForm'>
                     Number of Attempts(Rows):
-                    <select name="rows" className="settingsSelect" onChange={changeRows}>
+                    <select disabled={isClient} name="rows" className="settingsSelect" value={rowInput} onChange={changeRows} >
                         {Array.from({length: 12}, (_,i) => {return <option key={i}> {i + 5} </option>})}
                     </select>
                 </div>
 
                 <div className='settingsForm'>
                     Number of Letters(Columns):
-                    <select name="columns" className="settingsSelect" onChange={changeCols}>
+                    <select disabled={isClient} name="columns" className="settingsSelect" value={colInput} onChange={changeCols}>
                         {Array.from({length: 12}, (_,i) => {return <option key={i}> {i + 5} </option>})}
                     </select>
                 </div>
 
                 <div className='startButtonContainer'>
                     <Link to='/game' onClick={startGame}> 
-                        <button className='startButton'> Start Game </button>
+                        <button disabled={isClient} className='startButton'> Start Game </button>
                     </Link>
                 </div>
             </div>
 
             <div className="playersContainer">
                 <div className="playerBoxes">   
-                    {players.map((name, i) => {
-                        return <Row key={i} row={formatToRow(name)}/>
+                    {players.map((player, i) => {
+                        return <Row key={i} row={formatToRow(player.name)}/>
                     })}
                 </div>
             </div>

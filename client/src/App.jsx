@@ -21,7 +21,7 @@ function App() {
       <Header/>
       <Routes> 
         <Route path='/' element={<HomePage socket={socket}/>}/>
-        <Route path='/lobby' element={<LobbyPage onSettingsChange={setSettings}/>}/>
+        <Route path='/lobby' element={<LobbyPage socket={socket} onSettingsChange={setSettings}/>}/>
         <Route path='/game' element={<GamePage socket={socket} settings={settings}/>}/> 
       </Routes>
     </Router>

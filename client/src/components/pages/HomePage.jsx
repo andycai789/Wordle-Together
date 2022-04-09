@@ -1,4 +1,4 @@
-import {useState, useRef} from 'react'
+import {useState, useRef, useEffect} from 'react'
 import {Link} from "react-router-dom";
 import '../../css/HomePage.css';
 import Row from '../Row.jsx'
@@ -24,29 +24,31 @@ const formatToRow = (word, color) => {
 const HomePage = ({socket}) => {
   const [createLight, setCreateLight] = useState("zzzzzz")
   const [joinLight, setJoinLight] = useState("zzzzzz")
+  const [valid, setValid] = useState(false)
   const name = useRef('')
   const roomCode = useRef('')
-  const validCode = useRef(false)
+
+  useEffect(() => {
+    socket.on('validRoomCode', (response) => {
+      setValid(response)
+    })
+  })
 
   const changeName = (event)=>{
     name.current = event.target.value.toUpperCase()
   };
 
   const changeRoomCode = (event) => {
-    roomCode.current = event.target.value.toUpperCase()
+    roomCode.current = event.target.value
+    socket.emit('checkCode', roomCode.current)
   };
 
   const createRoom = (event) => {
-    // emit to server my name, and to create room
-
-    console.log("CREATED ROOM")
+    socket.emit('createRoom', name.current)
   }
 
   const joinRoom = (event) => {
-    // emit to server the server code
-    // on true code, set to true
-
-    console.log("JOINED ROOM")
+    socket.emit('joinRoom', {name: name.current, id: socket.id}, roomCode.current)
   }
 
   return (
@@ -57,7 +59,7 @@ const HomePage = ({socket}) => {
       </div>
 
       <form className='input'>
-        <input className='inputBar' type="text" name="name" maxLength="7" onChange={changeName}/>
+        <input className='inputBar' id='nameInputBar' type="text" name="name" maxLength="7" onChange={changeName}/>
       </form>
 
       <Link className='toCreateLobby' to='/lobby' onClick={createRoom} onMouseEnter={() => setCreateLight("gggggg")} onMouseLeave={() => setCreateLight("zzzzzz")}>
@@ -65,13 +67,13 @@ const HomePage = ({socket}) => {
         <Row row={formatToRow("ROOM  ", createLight)}/> 
       </Link>
 
-      <Link className='toJoinLobby' to={validCode.current ? '/lobby' : '/'} onClick={joinRoom} onMouseEnter={() => setJoinLight("yyyyyy")} onMouseLeave={() => setJoinLight("zzzzzz")}>
+      <Link className='toJoinLobby' to={valid ? '/lobby' : '/'} onClick={joinRoom} onMouseEnter={() => setJoinLight("yyyyyy")} onMouseLeave={() => setJoinLight("zzzzzz")}>
         <Row row={formatToRow("JOIN  ", joinLight)}/>
         <Row row={formatToRow("ROOM  ", joinLight)}/> 
       </Link>
 
       <form className='input'>
-        <input className='inputBar' type="text" name="name" onChange={changeRoomCode}/>
+        <input className='inputBar' id='codeInputBar' type="text" name="name" onChange={changeRoomCode}/>
       </form>
     </div>
   )
