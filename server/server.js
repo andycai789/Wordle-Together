@@ -14,54 +14,57 @@ const io = socketio(server)
 // app.use(express.static(__dirname + "/../client/build"));
 // app.use(express.json())
 
-const roomMap = new Map()
-const boardMap = new Map()
+const roomIDToPlayers = new Map()
+const roomIDToBoard = new Map()
+const playerIDtoRoomID = new Map()
 
 io.on('connection', socket => {
   console.log(socket.id + " connected") 
 
   socket.on('createRoom', (playerName) => {
-    roomMap.set(socket.id, [{name: playerName, id: socket.id}])
-    boardMap.set(socket.id, {rows: 5, cols: 5})
+    roomIDToPlayers.set(socket.id, [{name: playerName, id: socket.id}])
+    roomIDToBoard.set(socket.id, {rows: 5, cols: 5})
+    playerIDtoRoomID.set(socket.id, socket.id)
 
     socket.emit('isLeader')
     socket.emit('changeCode', socket.id)
-    socket.emit('players', roomMap.get(socket.id))
+    socket.emit('players', roomIDToPlayers.get(socket.id))
 
     console.log(socket.id + " created a room")
-    console.log(roomMap)
+    console.log(roomIDToPlayers)
   }) 
 
   socket.on('checkCode', (roomCode) => {
-    socket.emit('validRoomCode', roomMap.has(roomCode))
+    socket.emit('validRoomCode', roomIDToPlayers.has(roomCode))
   })
 
   socket.on('joinRoom', (player, roomCode) => {
-    roomMap.get(roomCode).push(player)
+    roomIDToPlayers.get(roomCode).push(player)
+    playerIDtoRoomID.set(socket.id, roomCode)
     socket.join(roomCode)
     socket.emit('changeCode', roomCode)
     
-    io.to(roomCode).emit('changeRowSelect', boardMap.get(roomCode).rows)
-    io.to(roomCode).emit('changeColSelect', boardMap.get(roomCode).cols)
-    io.to(roomCode).emit('players', roomMap.get(roomCode))
+    io.to(roomCode).emit('changeRowSelect', roomIDToBoard.get(roomCode).rows)
+    io.to(roomCode).emit('changeColSelect', roomIDToBoard.get(roomCode).cols)
+    io.to(roomCode).emit('players', roomIDToPlayers.get(roomCode))
 
     console.log(player.name + " joined " + roomCode)
-    console.log(roomMap)
-    console.log(boardMap)
+    console.log(roomIDToPlayers)
+    console.log(roomIDToBoard)
   })
 
   socket.on('newRowSelect', (newRow) => {
-    boardMap.get(socket.id).rows = parseInt(newRow)
+    roomIDToBoard.get(socket.id).rows = parseInt(newRow)
     io.to(socket.id).emit('changeRowSelect', newRow)
   })
 
   socket.on('newColSelect', (newCol) => {
-    boardMap.get(socket.id).cols = parseInt(newCol)
+    roomIDToBoard.get(socket.id).cols = parseInt(newCol)
     io.to(socket.id).emit('changeColSelect', newCol)
   })
 
   socket.on('startGame', () => {
-    let board = boardMap.get(socket.id)
+    let board = roomIDToBoard.get(socket.id)
     let wordList = wordGenerator.getNLengthWordList(board.cols)
     let wordle = wordGenerator.getRandomWordle(wordList)
     let settings = {
@@ -77,19 +80,26 @@ io.on('connection', socket => {
     io.to(socket.id).emit('board', board.game.getBoard())
   })  
 
-  // socket.on('key', key => {
-  //   if (!game.isEndGame()) { 
-  //     let result = game.accept(key)
-  //     console.log(game.getBoard())
-  //     console.log(key)
-  //     console.log(result)
 
-  //     socket.broadcast.emit('board', game.getBoard())
+  // THE PROBLEM WITH KEY IS THAT YOU NEED THE SOCKET ID OF THE ROOM
+  // SO THAT YOU CAN SEND IT OFF TO THE OTHER ROOMS
 
-  //   } else {
-  //     console.log("GAME HAS ENDED NO MORE INPUTS")
-  //   }
-  // })
+  socket.on('key', key => {
+
+    console.log(socket.id + " is in the following room: " + playerIDtoRoomID.get(socket.id))
+
+    // if (!game.isEndGame()) { 
+    //   let result = game.accept(key)
+    //   console.log(game.getBoard())
+    //   console.log(key)
+    //   console.log(result)
+
+    //   socket.broadcast.emit('board', game.getBoard())
+
+    // } else {
+    //   console.log("GAME HAS ENDED NO MORE INPUTS")
+    // }
+  })
 
   // socket.on('onGamePage', (x) => {
   //   console.log(x)
