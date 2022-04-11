@@ -1,4 +1,4 @@
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {useState, useEffect} from 'react'
 import '../../css/LobbyPage.css';
 import Row from '../Row.jsx';
@@ -6,15 +6,15 @@ import Row from '../Row.jsx';
 const formatToRow = (word) => {
     let wordArray = word.toUpperCase().padEnd(7, ' ').split('')
     return wordArray.map((letter, i) => ({letter: letter, color: ''}))
-  }
+}
 
 const LobbyPage = ({socket, onSettingsChange}) => {
     const [rowInput, setRowInput] = useState(5)
     const [colInput, setColInput] = useState(5)
     const [players, setPlayers] = useState([])
     const [isClient, setIsClient] = useState(true)
-    const [roomCode, setRoomCode] = useState(socket.id)
-    const [settings, setSettings] = useState({})
+    const [roomCode, setRoomCode] = useState('')
+    let navigate = useNavigate()
 
     useEffect(() => {
         socket.on('changeCode', (response) => {
@@ -38,9 +38,14 @@ const LobbyPage = ({socket, onSettingsChange}) => {
         })
     
         socket.on('changeSettings', (settings) => {
-            console.log(settings)
             onSettingsChange(settings)
-        })  
+        })
+
+        // socket.on('navigateToGamePage', () => {
+        //     navigate('/game')
+
+        // })
+        
     }, [])
 
     const changeRows = (event) => {
@@ -54,7 +59,7 @@ const LobbyPage = ({socket, onSettingsChange}) => {
     }
 
     const startGame = (event) => {
-        socket.emit('startGame', rowInput, colInput)
+        socket.emit('startGame')
     }
 
     return (
@@ -83,7 +88,7 @@ const LobbyPage = ({socket, onSettingsChange}) => {
 
                 <div className='startButtonContainer'>
                     <Link to='/game' onClick={startGame}> 
-                        <button disabled={isClient} className='startButton'> Start Game </button>
+                        <button  className='startButton'> Start Game </button>
                     </Link>
                 </div>
             </div>
