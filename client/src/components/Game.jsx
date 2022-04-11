@@ -102,13 +102,9 @@ const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList, so
 
     useEffect(() => {
         socket.on('board', board => {
+            console.log("GOT NEW BOARD IN " + socket.id)
             setBoard(board)
         })
-
-        socket.on('test', () => {
-            console.log("GOT IT")
-        })
-
     }, [])
 
     useEffect(() => {
