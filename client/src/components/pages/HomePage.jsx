@@ -48,7 +48,11 @@ const HomePage = ({socket}) => {
   }
 
   const joinRoom = (event) => {
-    socket.emit('joinRoom', {name: name.current, id: socket.id}, roomCode.current)
+    if (valid) {
+      socket.emit('joinRoom', {name: name.current, id: socket.id}, roomCode.current)
+    } else {
+      console.log("INVALID CODE")
+    }
   }
 
   return (

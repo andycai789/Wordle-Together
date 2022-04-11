@@ -10,7 +10,9 @@ const GamePage = ({socket, settings}) => {
       socket.emit('key', key)
       setUserInput({key: key, time: event.timeStamp})
     } 
-  
+
+    console.log(settings)
+
     useEffect(() => {
         window.addEventListener('keydown', pressKey)
       return () => {

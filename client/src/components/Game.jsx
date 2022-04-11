@@ -70,7 +70,7 @@ const setGreyBoxes = (boardRow) => {
     for (let i = 0; i < boardRow.length; i++) {
         if (boardRow[i].color === 'empty') {
             boardRow[i].color = 'gray'
-        }
+        } 
     }
 }
 
@@ -85,11 +85,11 @@ const changeColorsInRow = (boardRow, wordle) => {
     }
     setGreenBoxes(map, boardRow, wordle)
     setYellowBoxes(map, boardRow)
-    setGreyBoxes(map, boardRow)
+    setGreyBoxes(boardRow)
 }
   
 const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList, socket}) => {
-    const [board, setBoard] = useState(createMxNBoard(rowLength, colLength))    
+    const [board, setBoard] = useState(createMxNBoard(5, 5))
     const row = useRef(0)
     const col = useRef(0)
     const isEndGame = useRef(false)
@@ -100,9 +100,11 @@ const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList, so
         }
     }
 
-    socket.on('board', board => {
-        setBoard(board)
-    })
+    useEffect(() => {
+        socket.on('board', board => {
+            setBoard(board)
+        })
+    }, [])
 
     useEffect(() => {
         if (isEndGame.current){
@@ -116,12 +118,16 @@ const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList, so
             col.current += 1
             setBoard(newBoard)
         } else if (input.key === 'ENTER') {
+            console.log(rowLength)
+            console.log(colLength)
+            console.log(wordle)
+            console.log(board)
+
             if (!hasFilledRow(col.current, colLength)) {
                 return
             }
 
             if (!inWordList(newBoard[row.current], wordList)) {
-                console.log("NOT IN LIST")
                 return 
             }
 

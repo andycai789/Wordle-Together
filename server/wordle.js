@@ -86,7 +86,7 @@ class Wordle {
         }
         this.setGreenBoxes(map, boardRow, word)
         this.setYellowBoxes(map, boardRow)
-        this.setGreyBoxes(map, boardRow)
+        this.setGreyBoxes(boardRow)
     }
 
     moveToNextCol() {

@@ -1,9 +1,6 @@
 const wordGenerator = require('./wordGenerator.js')
 const Wordle = require('./wordle.js')
 
-// const wordList = wordGenerator.getNLengthWordList(7)
-// let game = new Wordle(3, 7, 'GRAHAMS', wordList)
-
 const path = require('path')
 const http = require('http')
 const express = require('express')
@@ -18,62 +15,70 @@ const io = socketio(server)
 // app.use(express.json())
 
 const roomMap = new Map()
+const boardMap = new Map()
 
 io.on('connection', socket => {
   console.log(socket.id + " connected") 
 
   socket.on('createRoom', (playerName) => {
-    console.log(socket.id + " created a room")
-    socket.join(socket.id)
-
-    if (!roomMap.has(socket.id)) {
-      roomMap.set(socket.id, [{name: playerName, id: socket.id}])
-    }
+    roomMap.set(socket.id, [{name: playerName, id: socket.id}])
+    boardMap.set(socket.id, {rows: 5, cols: 5})
 
     socket.emit('checkIfClient', false)
+    socket.emit('changeCode', socket.id)
     socket.emit('players', roomMap.get(socket.id))
 
+    console.log(socket.id + " created a room")
     console.log(roomMap)
   }) 
 
   socket.on('checkCode', (roomCode) => {
-    console.log(socket.id)
     socket.emit('validRoomCode', roomMap.has(roomCode))
   })
 
   socket.on('joinRoom', (player, roomCode) => {
-    console.log(player.name + " is trying to join the room")
+    roomMap.get(roomCode).push(player)
     socket.join(roomCode)
-
-    if (roomMap.has(roomCode)) {
-      roomMap.get(roomCode).push(player)
-    }
-
     socket.emit('changeCode', roomCode)
+    
+    io.to(roomCode).emit('changeRowSelect', boardMap.get(roomCode).rows)
+    io.to(roomCode).emit('changeColSelect', boardMap.get(roomCode).cols)
     io.to(roomCode).emit('players', roomMap.get(roomCode))
 
+    console.log(player.name + " joined " + roomCode)
     console.log(roomMap)
+    console.log(boardMap)
   })
 
   socket.on('newRowSelect', (newRow) => {
+    boardMap.get(socket.id).rows = newRow
     io.to(socket.id).emit('changeRowSelect', newRow)
   })
 
   socket.on('newColSelect', (newCol) => {
+    boardMap.get(socket.id).cols = newCol
     io.to(socket.id).emit('changeColSelect', newCol)
   })
 
-  socket.on('startGame', (rowInput, colInput) => {
-    let wordList = wordGenerator.getNLengthWordList(colInput)
+  socket.on('startGame', () => {
+    let board = boardMap.get(socket.id)
+    let wordList = wordGenerator.getNLengthWordList(board.cols)
     let wordle = wordGenerator.getRandomWordle(wordList)
 
     let settings = {
-      rows: parseInt(rowInput), 
-      cols: parseInt(colInput), 
+      rows: parseInt(board.rows), 
+      cols: parseInt(board.cols), 
       wordle: wordle, 
       wordList: wordList
     }
+
+    board.game = new Wordle(settings.rows, settings.cols, settings.wordle, settings.wordList)
     io.to(socket.id).emit('changeSettings', settings)
+    // io.to(socket.id).emit('navigateToGamePage')
+    io.to(socket.id).emit('board', board.game.getBoard())
+
+    console.log("BOARD INFO")
+    console.log(board.game.getBoard())
   })  
 
   // socket.on('key', key => {
