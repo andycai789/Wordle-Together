@@ -12,7 +12,7 @@ const LobbyPage = ({socket, onSettingsChange}) => {
     const [rowInput, setRowInput] = useState(5)
     const [colInput, setColInput] = useState(5)
     const [players, setPlayers] = useState([])
-    const [isClient, setIsClient] = useState(true)
+    const [isLeader, setIsLeader] = useState(false)
     const [roomCode, setRoomCode] = useState('')
     let navigate = useNavigate()
 
@@ -25,8 +25,8 @@ const LobbyPage = ({socket, onSettingsChange}) => {
             setPlayers(response)
         })
     
-        socket.on('checkIfClient', (response) => {
-            setIsClient(response)
+        socket.on('isLeader', () => {
+            setIsLeader(true)
         })
     
         socket.on('changeRowSelect', (newRow) => {
@@ -36,15 +36,11 @@ const LobbyPage = ({socket, onSettingsChange}) => {
         socket.on('changeColSelect', (newCol) => {
             setColInput(newCol)
         })
-    
-        socket.on('changeSettings', (settings) => {
+
+        socket.on('startGameForPlayers', (settings) => {
             onSettingsChange(settings)
+            navigate('/game')
         })
-
-        // socket.on('navigateToGamePage', () => {
-        //     navigate('/game')
-
-        // })
         
     }, [])
 
@@ -59,7 +55,11 @@ const LobbyPage = ({socket, onSettingsChange}) => {
     }
 
     const startGame = (event) => {
-        socket.emit('startGame')
+        if (isLeader) {
+            socket.emit('startGame')
+        } else {
+            console.log("CANNOT START GAME BECAUSE YOU ARENT LEADER")
+        }
     }
 
     return (
@@ -74,21 +74,21 @@ const LobbyPage = ({socket, onSettingsChange}) => {
 
                 <div className='settingsForm'>
                     Number of Attempts(Rows):
-                    <select disabled={isClient} name="rows" className="settingsSelect" value={rowInput} onChange={changeRows} >
+                    <select disabled={!isLeader} name="rows" className="settingsSelect" value={rowInput} onChange={changeRows} >
                         {Array.from({length: 12}, (_,i) => {return <option key={i}> {i + 5} </option>})}
                     </select>
                 </div>
 
                 <div className='settingsForm'>
                     Number of Letters(Columns):
-                    <select disabled={isClient} name="columns" className="settingsSelect" value={colInput} onChange={changeCols}>
+                    <select disabled={!isLeader} name="columns" className="settingsSelect" value={colInput} onChange={changeCols}>
                         {Array.from({length: 12}, (_,i) => {return <option key={i}> {i + 5} </option>})}
                     </select>
                 </div>
 
                 <div className='startButtonContainer'>
-                    <Link to='/game' onClick={startGame}> 
-                        <button  className='startButton'> Start Game </button>
+                    <Link to={isLeader && '/game'} onClick={startGame}> 
+                        <button className='startButton'> Start Game </button>
                     </Link>
                 </div>
             </div>

@@ -1,9 +1,9 @@
 class Wordle {
-    constructor(row, col, wordle, wordList) {
-        this.board = this.createMxNBoard(row, col)
+    constructor({rows, cols, wordle, wordList}) {
+        this.board = this.createMxNBoard(rows, cols)
         this.wordle = wordle
-        this.maxRow = row
-        this.maxCol = col
+        this.maxRow = rows
+        this.maxCol = cols
         this.curRow = 0
         this.curCol = 0
         this.wordList = new Set(wordList)

@@ -24,7 +24,7 @@ io.on('connection', socket => {
     roomMap.set(socket.id, [{name: playerName, id: socket.id}])
     boardMap.set(socket.id, {rows: 5, cols: 5})
 
-    socket.emit('checkIfClient', false)
+    socket.emit('isLeader')
     socket.emit('changeCode', socket.id)
     socket.emit('players', roomMap.get(socket.id))
 
@@ -51,12 +51,12 @@ io.on('connection', socket => {
   })
 
   socket.on('newRowSelect', (newRow) => {
-    boardMap.get(socket.id).rows = newRow
+    boardMap.get(socket.id).rows = parseInt(newRow)
     io.to(socket.id).emit('changeRowSelect', newRow)
   })
 
   socket.on('newColSelect', (newCol) => {
-    boardMap.get(socket.id).cols = newCol
+    boardMap.get(socket.id).cols = parseInt(newCol)
     io.to(socket.id).emit('changeColSelect', newCol)
   })
 
@@ -64,21 +64,17 @@ io.on('connection', socket => {
     let board = boardMap.get(socket.id)
     let wordList = wordGenerator.getNLengthWordList(board.cols)
     let wordle = wordGenerator.getRandomWordle(wordList)
-
     let settings = {
-      rows: parseInt(board.rows), 
-      cols: parseInt(board.cols), 
+      rows: board.rows, 
+      cols: board.cols, 
       wordle: wordle, 
       wordList: wordList
     }
 
-    board.game = new Wordle(settings.rows, settings.cols, settings.wordle, settings.wordList)
-    io.to(socket.id).emit('changeSettings', settings)
-    // io.to(socket.id).emit('navigateToGamePage')
+    board.game = new Wordle(settings)
+    
+    io.to(socket.id).emit('startGameForPlayers', settings)
     io.to(socket.id).emit('board', board.game.getBoard())
-
-    console.log("BOARD INFO")
-    console.log(board.game.getBoard())
   })  
 
   // socket.on('key', key => {
