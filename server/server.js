@@ -79,11 +79,8 @@ io.on('connection', socket => {
     
     io.to("room" + socket.id).emit('startGameForPlayers', settings)
     io.to("room" + socket.id).emit('board', board.game.getBoard())
+    io.to("room" + socket.id).emit('canType', true)
   })  
-
-
-  // THE PROBLEM WITH KEY IS THAT YOU NEED THE SOCKET ID OF THE ROOM
-  // SO THAT YOU CAN SEND IT OFF TO THE OTHER ROOMS
 
   socket.on('key', key => {
     let roomId = playerIDtoRoomID.get(socket.id)

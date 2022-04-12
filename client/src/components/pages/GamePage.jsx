@@ -4,19 +4,23 @@ import Game from '../Game.jsx'
 
 const GamePage = ({socket, settings}) => {
     const [userInput, setUserInput] = useState({key: '', time: 0})
-    
-    const pressKey = (event) => {
-      let key = (event instanceof KeyboardEvent) ? event.key.toUpperCase() : event.target.innerText.toUpperCase()
-      socket.emit('key', key)
-      setUserInput({key: key, time: event.timeStamp})
-    } 
+    const canType = useRef(false)
 
-    console.log(settings)
+    const pressKey = (event) => {
+        if (canType.current) {
+            let key = (event instanceof KeyboardEvent) ? event.key.toUpperCase() : event.target.innerText.toUpperCase()
+            socket.emit('key', key)
+            setUserInput({key: key, time: event.timeStamp})
+        }
+    } 
 
     useEffect(() => {
         window.addEventListener('keydown', pressKey)
+        socket.on('canType', (response) => {
+            canType.current = response
+        })
       return () => {
-          window.removeEventListener('keydown', pressKey)
+            window.removeEventListener('keydown', pressKey)
       }
     }, [])
 

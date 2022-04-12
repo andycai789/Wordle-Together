@@ -102,7 +102,6 @@ const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList, so
 
     useEffect(() => {
         socket.on('board', board => {
-            console.log("GOT NEW BOARD IN " + socket.id)
             setBoard(board)
         })
     }, [])
@@ -119,11 +118,6 @@ const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList, so
             col.current += 1
             setBoard(newBoard)
         } else if (input.key === 'ENTER') {
-            console.log(rowLength)
-            console.log(colLength)
-            console.log(wordle)
-            console.log(board)
-
             if (!hasFilledRow(col.current, colLength)) {
                 return
             }
