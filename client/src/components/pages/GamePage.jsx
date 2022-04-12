@@ -1,10 +1,13 @@
 import React from 'react'
 import {useState, useEffect, useRef} from 'react'
 import Game from '../Game.jsx'
+import PlayerName from '../PlayerName.jsx'
+import '../../css/GamePage.css';
 
 const GamePage = ({socket, settings}) => {
     const [userInput, setUserInput] = useState({key: '', time: 0})
     const canType = useRef(false)
+    const [currentPlayer, setCurrentPlayer] = useState('')
 
     const pressKey = (event) => {
         if (canType.current) {
@@ -20,13 +23,20 @@ const GamePage = ({socket, settings}) => {
 
     useEffect(() => {
         window.addEventListener('keydown', pressKey)
+        socket.on('setCurrentPlayer', (name) => {
+            setCurrentPlayer(name)
+        })
       return () => {
             window.removeEventListener('keydown', pressKey)
       }
     }, [])
 
     return (
-        <div>
+        <div className="gamePage">
+            <div className="playerTurn">
+                <PlayerName name={currentPlayer}/>
+            </div>
+
             <Game 
                 input={userInput} 
                 rowLength={settings.rows} 

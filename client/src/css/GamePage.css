@@ -1,0 +1,9 @@
+.gamePage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.playerTurn {
+    margin-top: 30px;
+}

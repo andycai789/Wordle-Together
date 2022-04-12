@@ -65,6 +65,7 @@ io.on('connection', socket => {
   })
 
   socket.on('startGame', () => {
+    let name = roomIDToPlayers.get(socket.id)[0].name
     let board = roomIDToBoard.get(socket.id)
     let wordList = wordGenerator.getNLengthWordList(board.cols)
     let wordle = wordGenerator.getRandomWordle(wordList)
@@ -81,6 +82,7 @@ io.on('connection', socket => {
     io.to("room" + socket.id).emit('startGameForPlayers', settings)
     io.to("room" + socket.id).emit('board', board.game.getBoard())
     io.to(socket.id).emit('canType', 0, 0)
+    io.to("room" + socket.id).emit('setCurrentPlayer', name)
   })  
 
   socket.on('key', key => {
@@ -89,9 +91,6 @@ io.on('connection', socket => {
 
     if (!game.isEndGame()) { 
       let result = game.accept(key)
-      console.log(key)
-      console.log(result)
-
       socket.to("room" + roomId).emit('board', game.getBoard())
     }
   })
@@ -105,8 +104,13 @@ io.on('connection', socket => {
 
     if (game.isEndGame()) {
       console.log("REACH END GAME")
+      // notify returning to lobby
+      // clean up game for next round
+
       return
     }
+
+    console.log("NOT END GAME")
 
     if (players.length == 0) {
       io.to(nextPlayer.id).emit('canType', row, col)
@@ -114,6 +118,8 @@ io.on('connection', socket => {
       socket.to(nextPlayer.id).emit('canType', row, col)
     }
 
+    io.to("room" + roomId).emit('setCurrentPlayer', nextPlayer.name)
+    console.log(nextPlayer.name)
     players.push(currentPlayer)
   })
 

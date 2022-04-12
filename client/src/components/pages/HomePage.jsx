@@ -63,7 +63,7 @@ const HomePage = ({socket}) => {
       </div>
 
       <form className='input'>
-        <input className='inputBar' id='nameInputBar' type="text" name="name" maxLength="7" onChange={changeName}/>
+        <input className='inputBar' id='nameInputBar' type="text" name="name" maxLength="6" onChange={changeName}/>
       </form>
 
       <Link className='toCreateLobby' to='/lobby' onClick={createRoom} onMouseEnter={() => setCreateLight("gggggg")} onMouseLeave={() => setCreateLight("zzzzzz")}>

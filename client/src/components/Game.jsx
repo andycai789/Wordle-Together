@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
 
-import Notification from './Notification.jsx'
 import Board from './Board.jsx'
 import Keyboard from './Keyboard.jsx'
 
@@ -87,7 +86,7 @@ const changeColorsInRow = (boardRow, wordle) => {
     setYellowBoxes(map, boardRow)
     setGreyBoxes(boardRow)
 }
-  
+
 const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList, socket, changeTyping}) => {
     const [board, setBoard] = useState(createMxNBoard(5, 5))
     const row = useRef(0)
@@ -145,7 +144,6 @@ const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList, so
 
     return (
         <div>
-            {/* <Notification notification={notification} hidePopUp={hidePopUp}/> */}
             <Board board={board}/>
             <Keyboard board={board} onKeyClick={handleKeyClick}/>
         </div>

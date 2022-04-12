@@ -1,12 +1,7 @@
 import {Link, useNavigate} from "react-router-dom";
 import {useState, useEffect} from 'react'
 import '../../css/LobbyPage.css';
-import Row from '../Row.jsx';
-
-const formatToRow = (word) => {
-    let wordArray = word.toUpperCase().padEnd(7, ' ').split('')
-    return wordArray.map((letter, i) => ({letter: letter, color: ''}))
-}
+import PlayerName from '../PlayerName.jsx';
 
 const LobbyPage = ({socket, onSettingsChange}) => {
     const [rowInput, setRowInput] = useState(5)
@@ -96,7 +91,7 @@ const LobbyPage = ({socket, onSettingsChange}) => {
             <div className="playersContainer">
                 <div className="playerBoxes">   
                     {players.map((player, i) => {
-                        return <Row key={i} row={formatToRow(player.name)}/>
+                        return <PlayerName key={i} name={player.name}/>
                     })}
                 </div>
             </div>
