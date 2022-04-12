@@ -88,7 +88,7 @@ const changeColorsInRow = (boardRow, wordle) => {
     setGreyBoxes(boardRow)
 }
   
-const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList, socket}) => {
+const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList, socket, changeTyping}) => {
     const [board, setBoard] = useState(createMxNBoard(5, 5))
     const row = useRef(0)
     const col = useRef(0)
@@ -104,13 +104,15 @@ const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList, so
         socket.on('board', board => {
             setBoard(board)
         })
+
+        socket.on('canType', (newRow, newCol) => {
+            row.current = newRow
+            col.current = newCol
+            changeTyping(true)
+        })
     }, [])
 
     useEffect(() => {
-        if (isEndGame.current){
-            return
-        }
-
         const newBoard = JSON.parse(JSON.stringify(board))
 
         if (inAlphabet(input.key) && hasEmptyBox(col.current, colLength)) {
@@ -131,6 +133,9 @@ const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList, so
             row.current += 1
             col.current = 0
             setBoard(newBoard)
+
+            changeTyping(false)
+            socket.emit('nextPlayer', row.current, col.current)
         } else if ((input.key === 'BACKSPACE' || input.key === 'DELETE') && isDeletable(col.current)) {
             newBoard[row.current][col.current - 1].letter = ''
             col.current -= 1

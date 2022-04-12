@@ -12,13 +12,14 @@ const GamePage = ({socket, settings}) => {
             socket.emit('key', key)
             setUserInput({key: key, time: event.timeStamp})
         }
-    } 
+    }
+
+    const changeTyping = (status) => {
+        canType.current = status
+    }
 
     useEffect(() => {
         window.addEventListener('keydown', pressKey)
-        socket.on('canType', (response) => {
-            canType.current = response
-        })
       return () => {
             window.removeEventListener('keydown', pressKey)
       }
@@ -33,7 +34,8 @@ const GamePage = ({socket, settings}) => {
                 wordle={settings.wordle}
                 wordList={new Set(settings.wordList)}
                 handleKeyClick={pressKey}
-                socket={socket}/>
+                socket={socket}
+                changeTyping={changeTyping}/>
         </div>
     )
 }

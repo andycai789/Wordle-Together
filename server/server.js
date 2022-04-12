@@ -76,10 +76,11 @@ io.on('connection', socket => {
     }
 
     board.game = new Wordle(settings)
+    board.nextTurn = socket.id
     
     io.to("room" + socket.id).emit('startGameForPlayers', settings)
     io.to("room" + socket.id).emit('board', board.game.getBoard())
-    io.to("room" + socket.id).emit('canType', true)
+    io.to(socket.id).emit('canType', 0, 0)
   })  
 
   socket.on('key', key => {
@@ -88,15 +89,34 @@ io.on('connection', socket => {
 
     if (!game.isEndGame()) { 
       let result = game.accept(key)
-      console.log(game.getBoard())
       console.log(key)
       console.log(result)
 
       socket.to("room" + roomId).emit('board', game.getBoard())
-    } else {
-      console.log("GAME HAS ENDED NO MORE INPUTS")
     }
   })
+
+  socket.on('nextPlayer', (row, col) => {
+    let roomId = playerIDtoRoomID.get(socket.id)
+    let players = roomIDToPlayers.get(roomId)
+    let game = roomIDToBoard.get(roomId).game
+    let currentPlayer = players.shift()
+    let nextPlayer = players.length == 0 ? currentPlayer : players[0]
+
+    if (game.isEndGame()) {
+      console.log("REACH END GAME")
+      return
+    }
+
+    if (players.length == 0) {
+      io.to(nextPlayer.id).emit('canType', row, col)
+    } else {
+      socket.to(nextPlayer.id).emit('canType', row, col)
+    }
+
+    players.push(currentPlayer)
+  })
+
 })
 
 server.listen(port, () => {
