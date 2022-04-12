@@ -1,5 +1,5 @@
 import {useState, useRef, useEffect} from 'react'
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import '../../css/HomePage.css';
 import Row from '../Row.jsx'
 
@@ -27,6 +27,7 @@ const HomePage = ({socket}) => {
   const [valid, setValid] = useState(false)
   const name = useRef('')
   const roomCode = useRef('')
+  const navigate = useNavigate()
 
   useEffect(() => {
     socket.on('validRoomCode', (response) => {
@@ -40,18 +41,31 @@ const HomePage = ({socket}) => {
 
   const changeRoomCode = (event) => {
     roomCode.current = event.target.value
+    setValid(false)
     socket.emit('checkCode', roomCode.current)
   };
 
-  const createRoom = (event) => {
+  const createRoom = () => {
     socket.emit('createRoom', name.current)
   }
 
-  const joinRoom = (event) => {
+  const joinRoom = () => {
     if (valid) {
       socket.emit('joinRoom', {name: name.current, id: socket.id}, roomCode.current)
     } else {
       console.log("INVALID CODE")
+    }
+  }
+
+  const handleNameSubmit = (event) => {
+    event.preventDefault();
+  }
+
+  const handleCodeSubmit = (event) => {
+    event.preventDefault();
+    if (valid) {
+      joinRoom()
+      navigate('/lobby')
     }
   }
 
@@ -62,7 +76,7 @@ const HomePage = ({socket}) => {
         <Row row={formatToRow("NAME", 'zzzzz')}/>
       </div>
 
-      <form className='input'>
+      <form className='input' autoComplete="off" onSubmit={handleNameSubmit}>
         <input className='inputBar' id='nameInputBar' type="text" name="name" maxLength="6" onChange={changeName}/>
       </form>
 
@@ -76,7 +90,7 @@ const HomePage = ({socket}) => {
         <Row row={formatToRow("ROOM  ", joinLight)}/> 
       </Link>
 
-      <form className='input'>
+      <form className='input' autoComplete="off" onSubmit={handleCodeSubmit}>
         <input className='inputBar' id='codeInputBar' type="text" name="name" onChange={changeRoomCode}/>
       </form>
     </div>

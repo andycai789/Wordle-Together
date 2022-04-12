@@ -106,11 +106,8 @@ io.on('connection', socket => {
       console.log("REACH END GAME")
       // notify returning to lobby
       // clean up game for next round
-
       return
     }
-
-    console.log("NOT END GAME")
 
     if (players.length == 0) {
       io.to(nextPlayer.id).emit('canType', row, col)
@@ -122,7 +119,6 @@ io.on('connection', socket => {
     console.log(nextPlayer.name)
     players.push(currentPlayer)
   })
-
 })
 
 server.listen(port, () => {
