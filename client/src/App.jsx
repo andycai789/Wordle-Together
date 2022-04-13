@@ -1,5 +1,5 @@
 import {io} from 'socket.io-client'
-import {useState} from 'react'
+import {useState, useEffect, useRef} from 'react'
 import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
 
 import Header from './components/Header.jsx'
@@ -9,20 +9,27 @@ import HomePage from './components/pages/HomePage.jsx'
 
 const socket = io()
 
-socket.on('connect', () => {
-  console.log(socket.id)
-})
-
 function App() {
   const [settings, setSettings] = useState({})
+  const permission = useRef('home')
+
+  const getPermission = () => {
+    return permission.current
+  }
+
+  useEffect( () => {
+    socket.on('connect', () => {
+      console.log(socket.id)
+    })
+  }, [])
 
   return (
     <Router>
       <Header/>
       <Routes> 
-        <Route path='/' element={<HomePage socket={socket}/>}/>
-        <Route path='/lobby' element={<LobbyPage socket={socket} onSettingsChange={setSettings}/>}/>
-        <Route path='/game' element={<GamePage socket={socket} settings={settings}/>}/> 
+        <Route path='/' element={<HomePage socket={socket} permission={permission}/>}/>
+        <Route path='/lobby' element={<LobbyPage socket={socket} permission={permission} getPermission={getPermission} onSettingsChange={setSettings}/>}/>
+        <Route path='/game' element={<GamePage socket={socket} permission={permission} getPermission={getPermission} settings={settings}/>}/> 
       </Routes>
     </Router>
   )

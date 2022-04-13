@@ -21,19 +21,19 @@ const formatToRow = (word, color) => {
   return wordArray.map((letter, i) => ({letter: letter, color: getColorFromLetter(c[i])}))
 }
 
-const HomePage = ({socket}) => {
+const HomePage = ({socket, permission}) => {
   const [createLight, setCreateLight] = useState("zzzzzz")
   const [joinLight, setJoinLight] = useState("zzzzzz")
-  const [valid, setValid] = useState(false)
+  const [validCode, setValidCode] = useState(false)
   const name = useRef('')
   const roomCode = useRef('')
   const navigate = useNavigate()
 
   useEffect(() => {
     socket.on('validRoomCode', (response) => {
-      setValid(response)
+      setValidCode(response)
     })
-  })
+  }, [])
 
   const changeName = (event)=>{
     name.current = event.target.value.toUpperCase()
@@ -41,17 +41,19 @@ const HomePage = ({socket}) => {
 
   const changeRoomCode = (event) => {
     roomCode.current = event.target.value
-    setValid(false)
+    setValidCode(false)
     socket.emit('checkCode', roomCode.current)
   };
 
   const createRoom = () => {
     socket.emit('createRoom', name.current)
+    permission.current = 'lobby'
   }
 
   const joinRoom = () => {
-    if (valid) {
+    if (validCode) {
       socket.emit('joinRoom', {name: name.current, id: socket.id}, roomCode.current)
+      permission.current = 'lobby'
     } else {
       console.log("INVALID CODE")
     }
@@ -63,15 +65,15 @@ const HomePage = ({socket}) => {
 
   const handleCodeSubmit = (event) => {
     event.preventDefault();
-    if (valid) {
+    if (validCode) {
       joinRoom()
-      navigate('/lobby')
+      permission.current ='lobby'
+      navigate('/lobby', {replace: true})
     }
   }
 
   return (
     <div className='HomePage'>
-
       <div className="nameBox">
         <Row row={formatToRow("NAME", 'zzzzz')}/>
       </div>
@@ -80,12 +82,12 @@ const HomePage = ({socket}) => {
         <input className='inputBar' id='nameInputBar' type="text" name="name" maxLength="6" onChange={changeName}/>
       </form>
 
-      <Link className='toCreateLobby' to='/lobby' onClick={createRoom} onMouseEnter={() => setCreateLight("gggggg")} onMouseLeave={() => setCreateLight("zzzzzz")}>
+      <Link className='toCreateLobby' to='lobby' replace onClick={createRoom} onMouseEnter={() => setCreateLight("gggggg")} onMouseLeave={() => setCreateLight("zzzzzz")}>
         <Row row={formatToRow("CREATE", createLight)}/>
         <Row row={formatToRow("ROOM  ", createLight)}/> 
       </Link>
 
-      <Link className='toJoinLobby' to={valid ? '/lobby' : '/'} onClick={joinRoom} onMouseEnter={() => setJoinLight("yyyyyy")} onMouseLeave={() => setJoinLight("zzzzzz")}>
+      <Link className='toJoinLobby' to={validCode ? '/lobby' : '/'} replace onClick={joinRoom} onMouseEnter={() => setJoinLight("yyyyyy")} onMouseLeave={() => setJoinLight("zzzzzz")}>
         <Row row={formatToRow("JOIN  ", joinLight)}/>
         <Row row={formatToRow("ROOM  ", joinLight)}/> 
       </Link>

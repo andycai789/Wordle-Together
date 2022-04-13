@@ -1,11 +1,17 @@
 import '../css/Header.css';
-import {Link} from "react-router-dom";
-
+import {useNavigate} from "react-router-dom";
 
 const Header = () => {
+    const navigate = useNavigate()
+
+    const handleOnClick = () => {
+        navigate('/', {replace: true})
+        window.location.reload(true);
+    }
+
     return (
         <div className='Header'>
-            <Link id='headerLink' to='/'> WORDLE WITH FRIENDS </Link>
+            <button id='headerLink' onClick={handleOnClick}> Wordle </button>
         </div>
     );
 }

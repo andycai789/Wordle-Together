@@ -11,15 +11,18 @@ const app = express()
 const server = http.createServer(app)
 const io = socketio(server)
 
-// app.use(express.static(__dirname + "/../client/build"));
-// app.use(express.json())
-
 const roomIDToPlayers = new Map()
 const roomIDToBoard = new Map()
 const playerIDtoRoomID = new Map()
 
 io.on('connection', socket => {
   console.log(socket.id + " connected") 
+  
+  socket.on('disconnect', (reason) => {
+    console.log(socket.id + " disconnected")
+    // remove player id from the maps
+  })
+
 
   socket.on('createRoom', (playerName) => {
     roomIDToPlayers.set(socket.id, [{name: playerName, id: socket.id}])
@@ -76,6 +79,8 @@ io.on('connection', socket => {
       wordList: wordList
     }
 
+    console.log(wordle)
+    
     board.game = new Wordle(settings)
     board.nextTurn = socket.id
     
@@ -116,7 +121,6 @@ io.on('connection', socket => {
     }
 
     io.to("room" + roomId).emit('setCurrentPlayer', nextPlayer.name)
-    console.log(nextPlayer.name)
     players.push(currentPlayer)
   })
 })

@@ -1,13 +1,15 @@
 import React from 'react'
+import {useNavigate} from "react-router-dom";
 import {useState, useEffect, useRef} from 'react'
 import Game from '../Game.jsx'
 import PlayerName from '../PlayerName.jsx'
 import '../../css/GamePage.css';
 
-const GamePage = ({socket, settings}) => {
+const GamePage = ({socket, settings, permission, getPermission}) => {
     const [userInput, setUserInput] = useState({key: '', time: 0})
     const canType = useRef(false)
     const [currentPlayer, setCurrentPlayer] = useState('')
+    const navigate = useNavigate()
 
     const pressKey = (event) => {
         if (canType.current) {
@@ -22,8 +24,13 @@ const GamePage = ({socket, settings}) => {
     }
 
     useEffect(() => {
+        if (getPermission() !== 'game') {
+            navigate('/', {replace: true})
+        }
+
         window.addEventListener('keydown', pressKey)
         socket.on('setCurrentPlayer', (name) => {
+            console.log("HERE")
             setCurrentPlayer(name)
         })
       return () => {

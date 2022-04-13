@@ -3,7 +3,7 @@ import {useState, useEffect} from 'react'
 import '../../css/LobbyPage.css';
 import PlayerName from '../PlayerName.jsx';
 
-const LobbyPage = ({socket, onSettingsChange}) => {
+const LobbyPage = ({socket, onSettingsChange, permission, getPermission}) => {
     const [rowInput, setRowInput] = useState(5)
     const [colInput, setColInput] = useState(5)
     const [players, setPlayers] = useState([])
@@ -12,6 +12,10 @@ const LobbyPage = ({socket, onSettingsChange}) => {
     let navigate = useNavigate()
 
     useEffect(() => {
+        if (getPermission() !== 'lobby') {
+            navigate('/', {replace: true})
+        }
+
         socket.on('changeCode', (response) => {
             setRoomCode(response)
         })
@@ -34,9 +38,9 @@ const LobbyPage = ({socket, onSettingsChange}) => {
 
         socket.on('startGameForPlayers', (settings) => {
             onSettingsChange(settings)
-            navigate('/game')
+            permission.current = 'game'
+            navigate('/game', {replace: true})
         })
-        
     }, [])
 
     const changeRows = (event) => {
@@ -51,6 +55,7 @@ const LobbyPage = ({socket, onSettingsChange}) => {
 
     const startGame = (event) => {
         if (isLeader) {
+            permission.current = 'game'
             socket.emit('startGame')
         } else {
             console.log("CANNOT START GAME BECAUSE YOU ARENT LEADER")
@@ -82,7 +87,7 @@ const LobbyPage = ({socket, onSettingsChange}) => {
                 </div>
 
                 <div className='startButtonContainer'>
-                    <Link to={isLeader && '/game'} onClick={startGame}> 
+                    <Link to={isLeader && '/game'} replace onClick={startGame}> 
                         <button className='startButton'> Start Game </button>
                     </Link>
                 </div>
