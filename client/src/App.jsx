@@ -1,38 +1,37 @@
-import { useState, useEffect } from 'react'
+import {io} from 'socket.io-client'
+import {useState, useEffect, useRef} from 'react'
+import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
+
 import Header from './components/Header.jsx'
-import Game from './components/Game.jsx'
+import GamePage from './components/pages/GamePage.jsx'
+import LobbyPage from './components/pages/LobbyPage.jsx'
+import HomePage from './components/pages/HomePage.jsx'
 
-function App({rows, columns, wordle, wordList}) {
-  const [userInput, setUserInput] = useState({key: '', time: 0})
+const socket = io()
 
-  const pressKey = (event) => {
-    setUserInput({key: event.key.toUpperCase(), time: event.timeStamp})
-  } 
+function App() {
+  const [settings, setSettings] = useState({})
+  const permission = useRef('home')
 
-  const clickKey = (event) => {
-    setUserInput({key: event.target.innerText.toUpperCase(), time: event.timeStamp})
+  const getPermission = () => {
+    return permission.current
   }
 
-  useEffect(() => {
-    console.log(wordle)
-
-    window.addEventListener('keydown', pressKey)
-
-    return () => {
-        window.removeEventListener('keydown', pressKey)
-    }
+  useEffect( () => {
+    socket.on('connect', () => {
+      console.log(socket.id)
+    })
   }, [])
 
   return (
-    <div className='App'>
+    <Router>
       <Header/>
-      <Game input={userInput} 
-            rowLength={rows} 
-            colLength={columns} 
-            wordle={wordle}
-            handleKeyClick={clickKey}
-            wordList={wordList}/>
-    </div>
+      <Routes> 
+        <Route path='/' element={<HomePage socket={socket} permission={permission}/>}/>
+        <Route path='/lobby' element={<LobbyPage socket={socket} permission={permission} getPermission={getPermission} onSettingsChange={setSettings}/>}/>
+        <Route path='/game' element={<GamePage socket={socket} permission={permission} getPermission={getPermission} settings={settings}/>}/> 
+      </Routes>
+    </Router>
   )
 }
 

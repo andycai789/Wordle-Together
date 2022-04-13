@@ -1,4 +1,3 @@
-import {React, useState, useEffect} from 'react'
 import Row from './Row.jsx'
 import '../css/Board.css'
 

@@ -1,45 +1,50 @@
 import React, { useState, useEffect, useRef } from 'react'
 
-import Notification from './Notification.jsx'
 import Board from './Board.jsx'
 import Keyboard from './Keyboard.jsx'
+
+const getDefaultBoxValues = () => {
+    return {
+        color: 'empty',
+        letter: ''
+    }
+}
+
+const createMxNBoard = (m, n) => {
+    return Array(m).fill().map(()=>Array(n).fill().map(() => getDefaultBoxValues()))
+}
+
+const convertBoardRowToString = (boardRow) => {
+    return boardRow.map(col => col.letter).join('')
+}
 
 const inAlphabet = (key) => {    
     const charCode = key.toUpperCase().charCodeAt(0)
     return (key.length === 1) && (charCode > 64) && (charCode < 91) 
 }
 
-const convertBoardRowToString = boardRow => {
-    return boardRow.map(col => col.letter).join('')
+const inWordList = (boardRow, wordList) => {
+    return wordList.has(convertBoardRowToString(boardRow).toLowerCase())
 }
 
-const inWordList = (boardRow, wordList) => {
-    return wordList.includes(convertBoardRowToString(boardRow).toLowerCase())
+const isDeletable = (column) => {
+    return column > 0
+}
+
+const hasFilledRow = (column, maxColumn) => {
+    return column === maxColumn
+}
+
+const hasEmptyBox = (column, maxColumn) => {
+    return column < maxColumn
 }
 
 const isWordle = (boardRow, wordle) => {
     return convertBoardRowToString(boardRow) === wordle.toUpperCase();
 }
 
-const isDeletable = (column) => {
-    return column > 0
-}
-  
-const hasFilledRow = (column, maxColumn) => {
-    return column === maxColumn
-}
-  
-const hasEmptyBox = (column, maxColumn) => {
-    return column < maxColumn
-}
-
-const createMxNBoard = (m, n) => {
-    return Array.from({length: m}, () => new Array(n).fill(
-        {
-            color: 'empty',
-            letter: ''
-        }
-    ))
+const isPastMaxRow = (curRow, maxRow) => {
+    return curRow === maxRow
 }
 
 const setGreenBoxes = (map, boardRow, wordle) => {
@@ -64,7 +69,7 @@ const setGreyBoxes = (boardRow) => {
     for (let i = 0; i < boardRow.length; i++) {
         if (boardRow[i].color === 'empty') {
             boardRow[i].color = 'gray'
-        }
+        } 
     }
 }
 
@@ -79,41 +84,35 @@ const changeColorsInRow = (boardRow, wordle) => {
     }
     setGreenBoxes(map, boardRow, wordle)
     setYellowBoxes(map, boardRow)
-    setGreyBoxes(map, boardRow)
+    setGreyBoxes(boardRow)
 }
-  
-const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList}) => {
-    const [board, setBoard] = useState(createMxNBoard(rowLength, colLength))    
-    const [notification, setNotification] = useState({visible: false, message: 'empty'})
+
+const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList, socket, changeTyping}) => {
+    const [board, setBoard] = useState(createMxNBoard(5, 5))
     const row = useRef(0)
     const col = useRef(0)
     const isEndGame = useRef(false)
 
-    const hidePopUp = () => {
-        setNotification({visible: false, message: notification.message})
+    const checkWinConditions = (newBoard) => {
+        if (isWordle(newBoard[row.current], wordle) || isPastMaxRow(row.current, rowLength - 1)) {
+            isEndGame.current = true
+        }
     }
 
     useEffect(() => {
-        const checkWinConditions = (newBoard) => {
-            if (isWordle(newBoard[row.current], wordle)) {
-                isEndGame.current = true
-                setTimeout(() => {
-                    setNotification({visible: true, message: 'YOU WON'})
-                }, 1500)
-            } else if (row.current === rowLength - 1){
-                isEndGame.current = true
-                setTimeout(() => {
-                    setNotification({visible: true, message: 'YOU LOST'})
-                }, 1500)
-            }
-        }
+        socket.on('board', board => {
+            setBoard(board)
+        })
 
+        socket.on('canType', (newRow, newCol) => {
+            row.current = newRow
+            col.current = newCol
+            changeTyping(true)
+        })
+    }, [])
+
+    useEffect(() => {
         const newBoard = JSON.parse(JSON.stringify(board))
-
-        if (isEndGame.current){
-            setNotification({visible: true, message: 'GAME FINISHED'})
-            return
-        }
 
         if (inAlphabet(input.key) && hasEmptyBox(col.current, colLength)) {
             newBoard[row.current][col.current].letter = input.key
@@ -121,12 +120,10 @@ const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList}) =
             setBoard(newBoard)
         } else if (input.key === 'ENTER') {
             if (!hasFilledRow(col.current, colLength)) {
-                setNotification({visible: true, message: 'Not enough letters'})
                 return
             }
 
             if (!inWordList(newBoard[row.current], wordList)) {
-                setNotification({visible: true, message: 'Not in word list'})
                 return 
             }
 
@@ -135,6 +132,9 @@ const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList}) =
             row.current += 1
             col.current = 0
             setBoard(newBoard)
+
+            changeTyping(false)
+            socket.emit('nextPlayer', row.current, col.current)
         } else if ((input.key === 'BACKSPACE' || input.key === 'DELETE') && isDeletable(col.current)) {
             newBoard[row.current][col.current - 1].letter = ''
             col.current -= 1
@@ -144,7 +144,6 @@ const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList}) =
 
     return (
         <div>
-            <Notification notification={notification} hidePopUp={hidePopUp}/>
             <Board board={board}/>
             <Keyboard board={board} onKeyClick={handleKeyClick}/>
         </div>
