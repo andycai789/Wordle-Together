@@ -10,6 +10,14 @@ class Wordle {
         this.endGameStatus = false
     }
 
+    getRow() {
+        return this.curRow
+    }
+
+    getCol() {
+        return this.curCol
+    }
+
     getDefaultBoxValues() {
         return {
             color: 'empty',

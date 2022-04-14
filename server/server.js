@@ -9,7 +9,7 @@ const socketio = require('socket.io')
 const port = process.env.PORT || 5000
 const app = express()
 const server = http.createServer(app)
-const io = socketio(server)
+const io = socketio(server, {'pingInterval': 1000, 'pingTimeout': 3000})
 
 const roomIDToPlayers = new Map()
 const roomIDToBoard = new Map()
@@ -26,7 +26,7 @@ function printMaps() {
 
 io.on('connection', socket => {
   console.log(socket.id + " connected") 
-  
+
   socket.on('disconnect', () => {
     console.log(socket.id + " disconnected")
     const roomId = playerIDtoRoomID.get(socket.id)
@@ -36,16 +36,19 @@ io.on('connection', socket => {
       return
     }
 
+    const board = roomIDToBoard.get(roomId)
+    const game = board.game
     const players = roomIDToPlayers.get(roomId)
     const indexOfPlayer = players.findIndex(player => player.id === socket.id)
     const player = players.splice(indexOfPlayer, 1)[0]
 
     if (player.leader) {
       if (players.length === 0) {
-        roomIDToPlayers.delete(socket.id)
-        roomIDToBoard.delete(socket.id)
+        roomIDToPlayers.delete(roomId)
+        roomIDToBoard.delete(roomId)
         playerIDtoRoomID.delete(socket.id)
         printMaps()
+        return
       } 
       else {
         players[0].leader = true
@@ -58,6 +61,11 @@ io.on('connection', socket => {
       playerIDtoRoomID.delete(socket.id)
       io.to("room" + roomId).emit('players', players)
       printMaps()
+    }
+
+    if (game !== undefined && board.curTurn === socket.id) {
+      io.to("room" + roomId).emit("setCurrentPlayer", players[0].name)
+      io.to(players[0].id).emit('canType', game.getRow(), game.getCol())
     }
   })
 
@@ -121,7 +129,7 @@ io.on('connection', socket => {
     console.log(wordle)
     
     board.game = new Wordle(settings)
-    board.nextTurn = socket.id
+    board.curTurn = socket.id
     
     io.to("room" + roomId).emit('startGameForPlayers', settings)
     io.to("room" + roomId).emit('board', board.game.getBoard())
@@ -142,11 +150,14 @@ io.on('connection', socket => {
   socket.on('nextPlayer', (row, col) => {
     let roomId = playerIDtoRoomID.get(socket.id)
     let players = roomIDToPlayers.get(roomId)
-    let game = roomIDToBoard.get(roomId).game
+    let board = roomIDToBoard.get(roomId)
+    let game = board.game
     let currentPlayer = players.shift()
     let nextPlayer = players.length == 0 ? currentPlayer : players[0]
 
     if (game.isEndGame()) {
+      players.push(currentPlayer)
+      printMaps()
       console.log("REACH END GAME")
       // notify returning to lobby
       // clean up game for next round
@@ -156,11 +167,13 @@ io.on('connection', socket => {
     if (players.length == 0) {
       io.to(nextPlayer.id).emit('canType', row, col)
     } else {
-      socket.to(nextPlayer.id).emit('canType', row, col)
+      io.to(nextPlayer.id).emit('canType', row, col)
     }
 
+    board.curTurn = nextPlayer.id
     io.to("room" + roomId).emit('setCurrentPlayer', nextPlayer.name)
     players.push(currentPlayer)
+    printMaps()
   })
 })
 
