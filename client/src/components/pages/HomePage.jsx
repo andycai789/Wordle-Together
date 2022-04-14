@@ -52,7 +52,7 @@ const HomePage = ({socket, permission}) => {
 
   const joinRoom = () => {
     if (validCode) {
-      socket.emit('joinRoom', {name: name.current, id: socket.id}, roomCode.current)
+      socket.emit('joinRoom', {name: name.current, id: socket.id, leader: false}, roomCode.current)
       permission.current = 'lobby'
     } else {
       console.log("INVALID CODE")

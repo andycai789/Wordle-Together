@@ -30,9 +30,14 @@ const GamePage = ({socket, settings, permission, getPermission}) => {
 
         window.addEventListener('keydown', pressKey)
         socket.on('setCurrentPlayer', (name) => {
-            console.log("HERE")
             setCurrentPlayer(name)
         })
+
+        // socket.on('returnToLobby', () => {
+        //     permission.current = 'lobby'
+        //     navigate('/lobby', {replace: true})
+        // })
+
       return () => {
             window.removeEventListener('keydown', pressKey)
       }

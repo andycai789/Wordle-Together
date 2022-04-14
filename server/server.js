@@ -15,17 +15,54 @@ const roomIDToPlayers = new Map()
 const roomIDToBoard = new Map()
 const playerIDtoRoomID = new Map()
 
+function printMaps() {
+  console.log("\nRoom ID to Players")
+  console.log(roomIDToPlayers)
+  console.log("\nRoom ID to Board")
+  console.log(roomIDToBoard)
+  console.log("\nPlayer ID to Room ID")
+  console.log(playerIDtoRoomID)
+}
+
 io.on('connection', socket => {
   console.log(socket.id + " connected") 
   
-  socket.on('disconnect', (reason) => {
+  socket.on('disconnect', () => {
     console.log(socket.id + " disconnected")
-    // remove player id from the maps
+    const roomId = playerIDtoRoomID.get(socket.id)
+
+    if (roomId === undefined) {
+      console.log(socket.id + " NOT IN ANYTHING YET")
+      return
+    }
+
+    const players = roomIDToPlayers.get(roomId)
+    const indexOfPlayer = players.findIndex(player => player.id === socket.id)
+    const player = players.splice(indexOfPlayer, 1)[0]
+
+    if (player.leader) {
+      if (players.length === 0) {
+        roomIDToPlayers.delete(socket.id)
+        roomIDToBoard.delete(socket.id)
+        playerIDtoRoomID.delete(socket.id)
+        printMaps()
+      } 
+      else {
+        players[0].leader = true
+        playerIDtoRoomID.delete(socket.id)
+        io.to(players[0].id).emit('isLeader')
+        io.to("room" + roomId).emit('players', players)
+        printMaps()
+      }
+    } else {
+      playerIDtoRoomID.delete(socket.id)
+      io.to("room" + roomId).emit('players', players)
+      printMaps()
+    }
   })
 
-
   socket.on('createRoom', (playerName) => {
-    roomIDToPlayers.set(socket.id, [{name: playerName, id: socket.id}])
+    roomIDToPlayers.set(socket.id, [{name: playerName, id: socket.id, leader: true}])
     roomIDToBoard.set(socket.id, {rows: 5, cols: 5})
     playerIDtoRoomID.set(socket.id, socket.id)
 
@@ -34,8 +71,8 @@ io.on('connection', socket => {
     socket.emit('changeCode', socket.id)
     socket.emit('players', roomIDToPlayers.get(socket.id))
 
+    printMaps()
     console.log(socket.id + " created a room")
-    console.log(roomIDToPlayers)
   }) 
 
   socket.on('checkCode', (roomCode) => {
@@ -47,29 +84,31 @@ io.on('connection', socket => {
     playerIDtoRoomID.set(socket.id, roomCode)
     socket.join("room" + roomCode)
     socket.emit('changeCode', roomCode)
+    socket.emit('changeRowSelect', roomIDToBoard.get(roomCode).rows)
+    socket.emit('changeColSelect', roomIDToBoard.get(roomCode).cols)
     
-    io.to("room" + roomCode).emit('changeRowSelect', roomIDToBoard.get(roomCode).rows)
-    io.to("room" + roomCode).emit('changeColSelect', roomIDToBoard.get(roomCode).cols)
     io.to("room" + roomCode).emit('players', roomIDToPlayers.get(roomCode))
 
+    printMaps()
     console.log(player.name + " joined " + roomCode)
-    console.log(roomIDToPlayers)
-    console.log(roomIDToBoard)
   })
 
   socket.on('newRowSelect', (newRow) => {
-    roomIDToBoard.get(socket.id).rows = parseInt(newRow)
-    io.to("room" + socket.id).emit('changeRowSelect', newRow)
+    const roomId = playerIDtoRoomID.get(socket.id)
+    roomIDToBoard.get(roomId).rows = parseInt(newRow)
+    io.to("room" + roomId).emit('changeRowSelect', newRow)
   })
 
   socket.on('newColSelect', (newCol) => {
-    roomIDToBoard.get(socket.id).cols = parseInt(newCol)
-    io.to("room" + socket.id).emit('changeColSelect', newCol)
+    const roomId = playerIDtoRoomID.get(socket.id)
+    roomIDToBoard.get(roomId).cols = parseInt(newCol)
+    io.to("room" + roomId).emit('changeColSelect', newCol)
   })
 
   socket.on('startGame', () => {
-    let name = roomIDToPlayers.get(socket.id)[0].name
-    let board = roomIDToBoard.get(socket.id)
+    let roomId = playerIDtoRoomID.get(socket.id)
+    let name = roomIDToPlayers.get(roomId)[0].name
+    let board = roomIDToBoard.get(roomId)
     let wordList = wordGenerator.getNLengthWordList(board.cols)
     let wordle = wordGenerator.getRandomWordle(wordList)
     let settings = {
@@ -84,10 +123,10 @@ io.on('connection', socket => {
     board.game = new Wordle(settings)
     board.nextTurn = socket.id
     
-    io.to("room" + socket.id).emit('startGameForPlayers', settings)
-    io.to("room" + socket.id).emit('board', board.game.getBoard())
+    io.to("room" + roomId).emit('startGameForPlayers', settings)
+    io.to("room" + roomId).emit('board', board.game.getBoard())
+    io.to("room" + roomId).emit('setCurrentPlayer', name)
     io.to(socket.id).emit('canType', 0, 0)
-    io.to("room" + socket.id).emit('setCurrentPlayer', name)
   })  
 
   socket.on('key', key => {

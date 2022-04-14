@@ -21,6 +21,10 @@ function App() {
     socket.on('connect', () => {
       console.log(socket.id)
     })
+    return () => {
+      socket.emit('disconnect');
+      socket.disconnect(true);    
+    }
   }, [])
 
   return (

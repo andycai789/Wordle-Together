@@ -16,26 +16,11 @@ const LobbyPage = ({socket, onSettingsChange, permission, getPermission}) => {
             navigate('/', {replace: true})
         }
 
-        socket.on('changeCode', (response) => {
-            setRoomCode(response)
-        })
-    
-        socket.on('players', (response) => {
-            setPlayers(response)
-        })
-    
-        socket.on('isLeader', () => {
-            setIsLeader(true)
-        })
-    
-        socket.on('changeRowSelect', (newRow) => {
-            setRowInput(newRow)
-        })
-    
-        socket.on('changeColSelect', (newCol) => {
-            setColInput(newCol)
-        })
-
+        socket.on('changeCode', (response) => {setRoomCode(response)})
+        socket.on('players', (response) => {setPlayers(response)})
+        socket.on('isLeader', () => {setIsLeader(true)})
+        socket.on('changeRowSelect', (newRow) => {setRowInput(newRow)})
+        socket.on('changeColSelect', (newCol) => {setColInput(newCol)})
         socket.on('startGameForPlayers', (settings) => {
             onSettingsChange(settings)
             permission.current = 'game'
