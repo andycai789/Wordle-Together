@@ -66,6 +66,7 @@ io.on('connection', socket => {
     if (game !== undefined && board.curTurn === socket.id) {
       io.to("room" + roomId).emit("setCurrentPlayer", players[0].name)
       io.to(players[0].id).emit('canType', game.getRow(), game.getCol())
+      board.curTurn = players[0].id
     }
   })
 
@@ -144,6 +145,7 @@ io.on('connection', socket => {
     if (!game.isEndGame()) { 
       let result = game.accept(key)
       socket.to("room" + roomId).emit('board', game.getBoard())
+      console.log(game.getBoard())
     }
   })
 
@@ -164,14 +166,9 @@ io.on('connection', socket => {
       return
     }
 
-    if (players.length == 0) {
-      io.to(nextPlayer.id).emit('canType', row, col)
-    } else {
-      io.to(nextPlayer.id).emit('canType', row, col)
-    }
-
-    board.curTurn = nextPlayer.id
+    io.to(nextPlayer.id).emit('canType', row, col)
     io.to("room" + roomId).emit('setCurrentPlayer', nextPlayer.name)
+    board.curTurn = nextPlayer.id
     players.push(currentPlayer)
     printMaps()
   })
