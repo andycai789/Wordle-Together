@@ -9,7 +9,7 @@ const socketio = require('socket.io')
 const port = process.env.PORT || 5000
 const app = express()
 const server = http.createServer(app)
-const io = socketio(server, {'pingInterval': 1000, 'pingTimeout': 3000})
+const io = socketio(server, {'pingInterval': 2000, 'pingTimeout': 3000})
 
 const roomIDToPlayers = new Map()
 const roomIDToBoard = new Map()
@@ -68,6 +68,23 @@ io.on('connection', socket => {
       io.to(players[0].id).emit('canType', game.getRow(), game.getCol())
       board.curTurn = players[0].id
     }
+
+    if (game !== undefined && game.isEndGame()) {
+      while (!players[0].leader) {
+        players.push(players.shift())
+      }
+
+      setTimeout( () => {
+        io.to("room" + roomId).emit('returnToLobby')
+      }, 1000)
+
+      setTimeout( () => {
+        io.to("room" + roomId).emit('players', players)
+        io.to("room" + roomId).emit('changeCode', roomId)
+        io.to(players[0].id).emit('isLeader')
+      }, 1500)
+    }
+
   })
 
   socket.on('createRoom', (playerName) => {
@@ -145,7 +162,6 @@ io.on('connection', socket => {
     if (!game.isEndGame()) { 
       let result = game.accept(key)
       socket.to("room" + roomId).emit('board', game.getBoard())
-      console.log(game.getBoard())
     }
   })
 
@@ -161,8 +177,21 @@ io.on('connection', socket => {
       players.push(currentPlayer)
       printMaps()
       console.log("REACH END GAME")
-      // notify returning to lobby
-      // clean up game for next round
+
+      while (!players[0].leader) {
+        players.push(players.shift())
+      }
+
+      setTimeout( () => {
+        io.to("room" + roomId).emit('returnToLobby')
+      }, 1000)
+
+      setTimeout( () => {
+        io.to("room" + roomId).emit('players', players)
+        io.to("room" + roomId).emit('changeCode', roomId)
+        io.to(players[0].id).emit('isLeader')
+      }, 1500)
+
       return
     }
 

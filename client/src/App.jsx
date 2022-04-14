@@ -21,6 +21,11 @@ function App() {
     socket.on('connect', () => {
       console.log(socket.id)
     })
+
+    window.onbeforeunload = function(e) {
+      socket.disconnect();
+    };
+
   }, [])
 
   return (
