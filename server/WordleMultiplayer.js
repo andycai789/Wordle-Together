@@ -4,16 +4,15 @@ const Wordle = require('./wordle.js')
 class WordleMultiplayer {
   constructor() {
     this.roomIDtoPlayers = new Map()
-    this.roomIDtoBoard = new Map()
+    this.roomIDtoGame = new Map()
     this.playerIDtoRoomID = new Map()
-    this.x = 0;
   }
 
   printMaps() {
     console.log("\nRoom ID to Players")
     console.log(this.roomIDtoPlayers)
-    console.log("\nRoom ID to Board")
-    console.log(this.roomIDtoBoard)
+    console.log("\nRoom ID to Game")
+    console.log(this.roomIDtoGame)
     console.log("\nPlayer ID to Room ID")
     console.log(this.playerIDtoRoomID)
   }
@@ -22,8 +21,8 @@ class WordleMultiplayer {
     return this.roomIDtoPlayers.get(roomID)
   }
   
-  getBoard(roomID) {
-    return this.roomIDtoBoard.get(roomID)
+  getGame(roomID) {
+    return this.roomIDtoGame.get(roomID)
   }
   
   getRoomID(playerID) {
@@ -32,7 +31,7 @@ class WordleMultiplayer {
 
   removeRoomID(roomID) {
     this.roomIDtoPlayers.delete(roomID)
-    this.roomIDtoBoard.delete(roomID)
+    this.roomIDtoGame.delete(roomID)
   }
 
   removePlayerID(playerID) {
@@ -75,8 +74,8 @@ class WordleMultiplayer {
     const roomID = this.getRoomID(socket.id)
     const players = this.getPlayers(roomID)
     const player = this.removePlayerFromList(socket.id, players)
-    const board = this.getBoard(roomID)
-    const game = board.game
+    const game = this.getGame(roomID)
+    const wordle = game.wordle
 
     if (player.leader) {
       if (players.length === 0) {
@@ -95,7 +94,7 @@ class WordleMultiplayer {
 
   addLeaderToMaps(socket, playerName) {
     this.roomIDtoPlayers.set(socket.id, [{name: playerName, id: socket.id, leader: true}])
-    this.roomIDtoBoard.set(socket.id, {rows: 5, cols: 5})
+    this.roomIDtoGame.set(socket.id, {rows: 5, cols: 5})
     this.playerIDtoRoomID.set(socket.id, socket.id)
   }
 
@@ -106,23 +105,23 @@ class WordleMultiplayer {
     socket.emit('players', this.getPlayers(socket.id))
   }
 
-  createRoom(socket, playerName) {
+  emitCreateRoom(socket, playerName) {
     this.addLeaderToMaps(socket, playerName)
     this.emitLeaderSettings(socket)
   }
 
-  checkRoomCode(socket, roomCode) {
+  emitRoomCode(socket, roomCode) {
     socket.emit('validRoomCode', this.roomIDtoPlayers.has(roomCode))
   }
 
   emitPlayerSettings(socket, roomCode) {
     socket.join("room" + roomCode)
     socket.emit('changeCode', roomCode)
-    socket.emit('changeRowSelect', this.getBoard(roomCode).rows)
-    socket.emit('changeColSelect', this.getBoard(roomCode).cols)
+    socket.emit('changeRowSelect', this.getGame(roomCode).rows)
+    socket.emit('changeColSelect', this.getGame(roomCode).cols)
   }
 
-  joinRoom(io, socket, player, roomCode) {
+  emitJoinRoom(io, socket, player, roomCode) {
     this.getPlayers(roomCode).push(player)
     this.playerIDtoRoomID.set(socket.id, roomCode)
     this.emitPlayerSettings(socket, roomCode)
@@ -131,26 +130,26 @@ class WordleMultiplayer {
 
   emitNewRow(io, socket, newRow) {
     const roomID = this.getRoomID(socket.id)
-    this.getBoard(roomID).rows = parseInt(newRow)
+    this.getGame(roomID).rows = parseInt(newRow)
     io.to("room" + roomID).emit('changeRowSelect', newRow)
   }
 
   emitNewCol(io, socket, newCol) {
     const roomID = this.getRoomID(socket.id)
-    this.getBoard(roomID).cols = parseInt(newCol)
+    this.getGame(roomID).cols = parseInt(newCol)
     io.to("room" + roomID).emit('changeColSelect', newCol)
   }
 
   getSettings(roomID) {
-    const board = this.getBoard(roomID)
-    const wordList = wordGenerator.getNLengthWordList(board.cols)
-    const wordle = wordGenerator.getRandomWordle(wordList)
-    console.log(wordle)
+    const game = this.getGame(roomID)
+    const wordList = wordGenerator.getNLengthWordList(game.cols)
+    const word = wordGenerator.getRandomWord(wordList)
+    console.log(word)
 
     return {
-      rows: board.rows, 
-      cols: board.cols, 
-      wordle: wordle, 
+      rows: game.rows, 
+      cols: game.cols, 
+      word: word, 
       wordList: wordList
     }
   }
@@ -160,25 +159,78 @@ class WordleMultiplayer {
   }
 
   createNewWordle(roomID, playerID, settings) {
-    const board = this.getBoard(roomID)
-    board.game = new Wordle(settings)
-    board.curTurn = playerID
+    const game = this.getGame(roomID)
+    game.wordle = new Wordle(settings)
+    game.curTurn = playerID
   }
 
-  emitBoardSettings(io, socket, roomID, settings) {
-    const board = this.getBoard(roomID)
+  emitGameSettings(io, socket, roomID, settings) {
+    const board = this.getGame(roomID).wordle.getBoard()
     io.to("room" + roomID).emit('startGameForPlayers', settings)
-    io.to("room" + roomID).emit('board', board.game.getBoard())
+    io.to("room" + roomID).emit('board', board)
     io.to("room" + roomID).emit('setCurrentPlayer', this.getFirstPlayerName(roomID))
     io.to(socket.id).emit('canType', 0, 0)
   }
 
-  startGame(io, socket) {
+  emitStartGame(io, socket) {
     const roomID = this.getRoomID(socket.id)
     const settings = this.getSettings(roomID)
     this.createNewWordle(roomID, socket.id, settings)
-    this.emitBoardSettings(io, socket, roomID, settings)
+    this.emitGameSettings(io, socket, roomID, settings)
   }
+
+  emitNewKey(socket, key) {
+    const roomID = this.getRoomID(socket.id)
+    const wordle = this.getGame(roomID).wordle
+
+    if (!wordle.isEndGame()) { 
+      let result = wordle.accept(key)
+      socket.to("room" + roomID).emit('board', wordle.getBoard())
+    }
+  }
+
+  emitNextPlayer(io, socket, row, col) {
+    const roomID = this.getRoomID(socket.id)
+    const players = this.getPlayers(roomID)
+
+    const game = roomIDToGame.get(roomID)
+    const wordle = game.wordle
+
+    const currentPlayer = players.shift()
+    const nextPlayer = players.length == 0 ? currentPlayer : players[0]
+
+    if (game.isEndGame()) {
+      players.push(currentPlayer)
+      printMaps()
+      console.log("REACH END GAME")
+
+      while (!players[0].leader) {
+        players.push(players.shift())
+      }
+
+      // setTimeout( () => {
+      //   io.to("room" + roomId).emit('returnToLobby')
+      // }, 1000)
+
+      // setTimeout( () => {
+      //   io.to("room" + roomId).emit('players', players)
+      //   io.to("room" + roomId).emit('changeCode', roomId)
+      //   io.to(players[0].id).emit('isLeader')
+      // }, 1500)
+
+      return
+    }
+
+    io.to(nextPlayer.id).emit('canType', row, col)
+    io.to("room" + roomId).emit('setCurrentPlayer', nextPlayer.name)
+    game.curTurn = nextPlayer.id
+    players.push(currentPlayer)
+  }
+
+  emitNextPlayerSettings() {
+
+  }
+
 
 
 }

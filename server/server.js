@@ -45,18 +45,18 @@ io.on('connection', socket => {
   })
 
   socket.on('createRoom', (playerName) => {
-    wmp.createRoom(socket, playerName)
+    wmp.emitCreateRoom(socket, playerName)
     wmp.printMaps()
     console.log(socket.id + " created a room")
 
   }) 
 
   socket.on('checkCode', (roomCode) => {
-    wmp.checkRoomCode(socket, roomCode)
+    wmp.emitRoomCode(socket, roomCode)
   })
 
   socket.on('joinRoom', (player, roomCode) => {
-    wmp.joinRoom(io, socket, player, roomCode)
+    wmp.emitJoinRoom(io, socket, player, roomCode)
     wmp.printMaps()
     console.log(player.name + " joined " + roomCode)
   })
@@ -70,54 +70,16 @@ io.on('connection', socket => {
   })
 
   socket.on('startGame', () => {
-    wmp.startGame(io, socket)
+    wmp.emitStartGame(io, socket)
   })  
 
   socket.on('key', key => {
-    let roomId = playerIDtoRoomID.get(socket.id)
-    let game = roomIDToBoard.get(roomId).game
-
-    if (!game.isEndGame()) { 
-      let result = game.accept(key)
-      socket.to("room" + roomId).emit('board', game.getBoard())
-    }
+    wmp.emitNewKey(socket, key)
   })
 
   socket.on('nextPlayer', (row, col) => {
-    let roomId = playerIDtoRoomID.get(socket.id)
-    let players = roomIDToPlayers.get(roomId)
-    let board = roomIDToBoard.get(roomId)
-    let game = board.game
-    let currentPlayer = players.shift()
-    let nextPlayer = players.length == 0 ? currentPlayer : players[0]
-
-    if (game.isEndGame()) {
-      players.push(currentPlayer)
-      printMaps()
-      console.log("REACH END GAME")
-
-      while (!players[0].leader) {
-        players.push(players.shift())
-      }
-
-      setTimeout( () => {
-        io.to("room" + roomId).emit('returnToLobby')
-      }, 1000)
-
-      setTimeout( () => {
-        io.to("room" + roomId).emit('players', players)
-        io.to("room" + roomId).emit('changeCode', roomId)
-        io.to(players[0].id).emit('isLeader')
-      }, 1500)
-
-      return
-    }
-
-    io.to(nextPlayer.id).emit('canType', row, col)
-    io.to("room" + roomId).emit('setCurrentPlayer', nextPlayer.name)
-    board.curTurn = nextPlayer.id
-    players.push(currentPlayer)
-    printMaps()
+    // wmp.emitNextPlayer(io, socket, row, col)
+    wmp.printMaps()
   })
 })
 

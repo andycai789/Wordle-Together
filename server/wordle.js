@@ -1,7 +1,7 @@
 class Wordle {
-    constructor({rows, cols, wordle, wordList}) {
+    constructor({rows, cols, word, wordList}) {
         this.board = this.createMxNBoard(rows, cols)
-        this.wordle = wordle
+        this.word = word
         this.maxRow = rows
         this.maxCol = cols
         this.curRow = 0
@@ -82,7 +82,7 @@ class Wordle {
     
     changeColorsInRow() {
         let boardRow = this.board[this.curRow]
-        let word = this.wordle
+        let word = this.word
 
         let map = new Map();
         for (let i = 0; i < word.length; i++) {
@@ -124,7 +124,7 @@ class Wordle {
 
     isVictory() {
         return this.convertBoardRowToString(this.board[this.curRow - 1]) === 
-                this.wordle.toUpperCase();
+                this.word.toUpperCase();
     }
 
     isDefeat() {

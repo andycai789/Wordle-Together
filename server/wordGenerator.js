@@ -2,7 +2,7 @@ function randInt(lessThan) {
     return Math.floor(Math.random() * lessThan);
   }
   
-function getRandomWordle(wordList) {
+function getRandomWord(wordList) {
   return wordList[randInt(wordList.length)].toUpperCase(); 
 }
   
@@ -12,5 +12,5 @@ function getNLengthWordList(n) {
   return JSON.parse(rawData)
 }
 
-exports.getRandomWordle = getRandomWordle
+exports.getRandomWord = getRandomWord
 exports.getNLengthWordList = getNLengthWordList

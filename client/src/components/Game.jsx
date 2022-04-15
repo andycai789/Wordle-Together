@@ -39,17 +39,17 @@ const hasEmptyBox = (column, maxColumn) => {
     return column < maxColumn
 }
 
-const isWordle = (boardRow, wordle) => {
-    return convertBoardRowToString(boardRow) === wordle.toUpperCase();
+const isWord = (boardRow, word) => {
+    return convertBoardRowToString(boardRow) === word.toUpperCase();
 }
 
 const isPastMaxRow = (curRow, maxRow) => {
     return curRow === maxRow
 }
 
-const setGreenBoxes = (map, boardRow, wordle) => {
+const setGreenBoxes = (map, boardRow, word) => {
     for (let i = 0; i < boardRow.length; i++) {        
-        if (boardRow[i].letter === wordle[i]) {
+        if (boardRow[i].letter === word[i]) {
             boardRow[i].color = 'green'
             map.get(boardRow[i].letter).val--
         } 
@@ -73,28 +73,28 @@ const setGreyBoxes = (boardRow) => {
     }
 }
 
-const changeColorsInRow = (boardRow, wordle) => {
+const changeColorsInRow = (boardRow, word) => {
     let map = new Map();
-    for (let i = 0; i < wordle.length; i++) {
-        if (!map.has(wordle[i])) {
-            map.set(wordle[i], {val: 1})
+    for (let i = 0; i < word.length; i++) {
+        if (!map.has(word[i])) {
+            map.set(word[i], {val: 1})
         } else {
-            map.get(wordle[i]).val++
+            map.get(word[i]).val++
         }
     }
-    setGreenBoxes(map, boardRow, wordle)
+    setGreenBoxes(map, boardRow, word)
     setYellowBoxes(map, boardRow)
     setGreyBoxes(boardRow)
 }
 
-const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList, socket, changeTyping}) => {
+const Game = ({input, rowLength, colLength, word, handleKeyClick, wordList, socket, changeTyping}) => {
     const [board, setBoard] = useState(createMxNBoard(5, 5))
     const row = useRef(0)
     const col = useRef(0)
     const isEndGame = useRef(false)
 
     const checkWinConditions = (newBoard) => {
-        if (isWordle(newBoard[row.current], wordle) || isPastMaxRow(row.current, rowLength - 1)) {
+        if (isWord(newBoard[row.current], word) || isPastMaxRow(row.current, rowLength - 1)) {
             isEndGame.current = true
         }
     }
@@ -127,7 +127,7 @@ const Game = ({input, rowLength, colLength, wordle, handleKeyClick, wordList, so
                 return 
             }
 
-            changeColorsInRow(newBoard[row.current], wordle)
+            changeColorsInRow(newBoard[row.current], word)
             checkWinConditions(newBoard)
             row.current += 1
             col.current = 0

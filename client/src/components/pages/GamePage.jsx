@@ -53,7 +53,7 @@ const GamePage = ({socket, settings, permission, getPermission}) => {
                 input={userInput} 
                 rowLength={settings.rows} 
                 colLength={settings.cols} 
-                wordle={settings.wordle}
+                word={settings.word}
                 wordList={new Set(settings.wordList)}
                 handleKeyClick={pressKey}
                 socket={socket}
