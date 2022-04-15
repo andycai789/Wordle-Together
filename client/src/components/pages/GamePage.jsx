@@ -26,6 +26,7 @@ const GamePage = ({socket, settings, permission, getPermission}) => {
     useEffect(() => {
         if (getPermission() !== 'game') {
             navigate('/', {replace: true})
+            return
         }
 
         window.addEventListener('keydown', pressKey)
@@ -38,9 +39,11 @@ const GamePage = ({socket, settings, permission, getPermission}) => {
             navigate('/lobby', {replace: true})
         })
 
-      return () => {
+        socket.emit('initialGameSettings')
+
+        return () => {
             window.removeEventListener('keydown', pressKey)
-      }
+        }
     }, [])
 
     return (

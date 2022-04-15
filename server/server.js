@@ -20,66 +20,50 @@ io.on('connection', socket => {
     console.log(socket.id + " disconnected")
     wmp.disconnectPlayer(io, socket)
     wmp.printMaps()
-    // if (game !== undefined && board.curTurn === socket.id) {
-    //   io.to("room" + roomId).emit("setCurrentPlayer", players[0].name)
-    //   io.to(players[0].id).emit('canType', game.getRow(), game.getCol())
-    //   board.curTurn = players[0].id
-    // }
-
-    // if (game !== undefined && game.isEndGame()) {
-    //   while (!players[0].leader) {
-    //     players.push(players.shift())
-    //   }
-
-    //   setTimeout( () => {
-    //     io.to("room" + roomId).emit('returnToLobby')
-    //   }, 1000)
-
-    //   setTimeout( () => {
-    //     io.to("room" + roomId).emit('players', players)
-    //     io.to("room" + roomId).emit('changeCode', roomId)
-    //     io.to(players[0].id).emit('isLeader')
-    //   }, 1500)
-    // }
-
   })
 
   socket.on('createRoom', (playerName) => {
     wmp.emitCreateRoom(socket, playerName)
     wmp.printMaps()
     console.log(socket.id + " created a room")
-
   }) 
 
-  socket.on('checkCode', (roomCode) => {
-    wmp.emitRoomCode(socket, roomCode)
+  socket.on('checkCode', (roomID) => {
+    wmp.emitIfRoomCodeValid(socket, roomID)
   })
 
-  socket.on('joinRoom', (player, roomCode) => {
-    wmp.emitJoinRoom(io, socket, player, roomCode)
+  socket.on('joinRoom', (player, roomID) => {
+    wmp.emitJoinRoom(socket, player, roomID)
     wmp.printMaps()
-    console.log(player.name + " joined " + roomCode)
+    console.log(player.name + " joined " + roomID)
+  })
+
+  socket.on('initialLobbySettings', () => {
+    wmp.emitInitialLobbySettings(io, socket)
   })
 
   socket.on('newRowSelect', (newRow) => {
-    wmp.emitNewRow(io, socket, newRow)
+    wmp.emitNewRowFromLeader(io, socket, newRow)
   })
 
   socket.on('newColSelect', (newCol) => {
-    wmp.emitNewCol(io, socket, newCol)
+    wmp.emitNewColFromLeader(io, socket, newCol)
   })
 
   socket.on('startGame', () => {
     wmp.emitStartGame(io, socket)
   })  
 
+  socket.on('initialGameSettings', () => {
+    wmp.emitInitialGameSettings(io, socket)
+  })
+
   socket.on('key', key => {
     wmp.emitNewKey(socket, key)
   })
 
   socket.on('nextPlayer', (row, col) => {
-    // wmp.emitNextPlayer(io, socket, row, col)
-    wmp.printMaps()
+    wmp.emitNextPlayer(io, socket, row, col)
   })
 })
 

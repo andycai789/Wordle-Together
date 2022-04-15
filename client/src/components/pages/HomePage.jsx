@@ -29,12 +29,6 @@ const HomePage = ({socket, permission}) => {
   const roomCode = useRef('')
   const navigate = useNavigate()
 
-  useEffect(() => {
-    socket.on('validRoomCode', (response) => {
-      setValidCode(response)
-    })
-  }, [])
-
   const changeName = (event)=>{
     name.current = event.target.value.toUpperCase()
   };
@@ -71,6 +65,12 @@ const HomePage = ({socket, permission}) => {
       navigate('/lobby', {replace: true})
     }
   }
+
+  useEffect(() => {
+    socket.on('validRoomCode', (response) => {
+      setValidCode(response)
+    })
+  }, [])
 
   return (
     <div className='HomePage'>

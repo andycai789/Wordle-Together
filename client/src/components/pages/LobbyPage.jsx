@@ -11,23 +11,6 @@ const LobbyPage = ({socket, onSettingsChange, permission, getPermission}) => {
     const [roomCode, setRoomCode] = useState('')
     let navigate = useNavigate()
 
-    useEffect(() => {
-        if (getPermission() !== 'lobby') {
-            navigate('/', {replace: true})
-        }
-
-        socket.on('changeCode', (response) => {setRoomCode(response)})
-        socket.on('players', (response) => {setPlayers(response)})
-        socket.on('isLeader', () => {setIsLeader(true)})
-        socket.on('changeRowSelect', (newRow) => {setRowInput(newRow)})
-        socket.on('changeColSelect', (newCol) => {setColInput(newCol)})
-        socket.on('startGameForPlayers', (settings) => {
-            onSettingsChange(settings)
-            permission.current = 'game'
-            navigate('/game', {replace: true})
-        })
-    }, [])
-
     const changeRows = (event) => {
         setRowInput(event.target.value)
         socket.emit('newRowSelect', event.target.value)
@@ -46,6 +29,27 @@ const LobbyPage = ({socket, onSettingsChange, permission, getPermission}) => {
             console.log("CANNOT START GAME BECAUSE YOU ARENT LEADER")
         }
     }
+
+    useEffect(() => {
+        if (getPermission() !== 'lobby') {
+            navigate('/', {replace: true})
+            return
+        }
+
+        socket.on('isLeader', () => {setIsLeader(true)})
+        socket.on('changeCode', (response) => {setRoomCode(response)})
+        socket.on('changeRowSelect', (newRow) => {setRowInput(newRow)})
+        socket.on('changeColSelect', (newCol) => {setColInput(newCol)})
+        socket.on('players', (response) => {setPlayers(response)})
+
+        socket.on('startGameForPlayers', (settings) => {
+            onSettingsChange(settings)
+            permission.current = 'game'
+            navigate('/game', {replace: true})
+        })
+
+        socket.emit('initialLobbySettings') 
+    }, [])
 
     return (
         <div className='lobbyPage'>
