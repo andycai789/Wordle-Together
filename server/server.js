@@ -1,5 +1,3 @@
-const wordGenerator = require('./wordGenerator.js')
-const Wordle = require('./wordle.js')
 const WordleMultiplayer = require('./WordleMultiplayer.js')
 
 const path = require('path')
@@ -64,36 +62,15 @@ io.on('connection', socket => {
   })
 
   socket.on('newRowSelect', (newRow) => {
-    wmp.emitNewRow(newRow)
+    wmp.emitNewRow(io, socket, newRow)
   })
 
   socket.on('newColSelect', (newCol) => {
-    wmp.emitNewRow(newCol)
-
+    wmp.emitNewCol(io, socket, newCol)
   })
 
   socket.on('startGame', () => {
-    let roomId = playerIDtoRoomID.get(socket.id)
-    let name = roomIDToPlayers.get(roomId)[0].name
-    let board = roomIDToBoard.get(roomId)
-    let wordList = wordGenerator.getNLengthWordList(board.cols)
-    let wordle = wordGenerator.getRandomWordle(wordList)
-    let settings = {
-      rows: board.rows, 
-      cols: board.cols, 
-      wordle: wordle, 
-      wordList: wordList
-    }
-
-    console.log(wordle)
-    
-    board.game = new Wordle(settings)
-    board.curTurn = socket.id
-    
-    io.to("room" + roomId).emit('startGameForPlayers', settings)
-    io.to("room" + roomId).emit('board', board.game.getBoard())
-    io.to("room" + roomId).emit('setCurrentPlayer', name)
-    io.to(socket.id).emit('canType', 0, 0)
+    wmp.startGame(io, socket)
   })  
 
   socket.on('key', key => {

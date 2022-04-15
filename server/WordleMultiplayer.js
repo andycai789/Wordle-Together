@@ -1,3 +1,6 @@
+const wordGenerator = require('./wordGenerator.js')
+const Wordle = require('./wordle.js')
+
 class WordleMultiplayer {
   constructor() {
     this.roomIDtoPlayers = new Map()
@@ -126,16 +129,55 @@ class WordleMultiplayer {
     io.to("room" + roomCode).emit('players', this.getPlayers(roomCode))
   }
 
-  emitNewRow(newRow) {
-    const roomId = playerIDtoRoomID.get(socket.id)
-    roomIDToBoard.get(roomId).rows = parseInt(newRow)
-    io.to("room" + roomId).emit('changeRowSelect', newRow)
+  emitNewRow(io, socket, newRow) {
+    const roomID = this.getRoomID(socket.id)
+    this.getBoard(roomID).rows = parseInt(newRow)
+    io.to("room" + roomID).emit('changeRowSelect', newRow)
   }
 
-  emitNewCol(newCol) {
-    const roomId = playerIDtoRoomID.get(socket.id)
-    roomIDToBoard.get(roomId).cols = parseInt(newCol)
-    io.to("room" + roomId).emit('changeColSelect', newCol)
+  emitNewCol(io, socket, newCol) {
+    const roomID = this.getRoomID(socket.id)
+    this.getBoard(roomID).cols = parseInt(newCol)
+    io.to("room" + roomID).emit('changeColSelect', newCol)
+  }
+
+  getSettings(roomID) {
+    const board = this.getBoard(roomID)
+    const wordList = wordGenerator.getNLengthWordList(board.cols)
+    const wordle = wordGenerator.getRandomWordle(wordList)
+    console.log(wordle)
+
+    return {
+      rows: board.rows, 
+      cols: board.cols, 
+      wordle: wordle, 
+      wordList: wordList
+    }
+  }
+
+  getFirstPlayerName(roomID) {
+    return this.getPlayers(roomID)[0].name
+  }
+
+  createNewWordle(roomID, playerID, settings) {
+    const board = this.getBoard(roomID)
+    board.game = new Wordle(settings)
+    board.curTurn = playerID
+  }
+
+  emitBoardSettings(io, socket, roomID, settings) {
+    const board = this.getBoard(roomID)
+    io.to("room" + roomID).emit('startGameForPlayers', settings)
+    io.to("room" + roomID).emit('board', board.game.getBoard())
+    io.to("room" + roomID).emit('setCurrentPlayer', this.getFirstPlayerName(roomID))
+    io.to(socket.id).emit('canType', 0, 0)
+  }
+
+  startGame(io, socket) {
+    const roomID = this.getRoomID(socket.id)
+    const settings = this.getSettings(roomID)
+    this.createNewWordle(roomID, socket.id, settings)
+    this.emitBoardSettings(io, socket, roomID, settings)
   }
 
 
