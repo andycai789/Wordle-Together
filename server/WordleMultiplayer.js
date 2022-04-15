@@ -63,6 +63,9 @@ class WordleMultiplayer {
   }
 
   handleDCIfInGame() {
+    
+
+
     if (wordle !== undefined && game.curTurn === socket.id) {
       io.to("room" + roomId).emit("setCurrentPlayer", players[0].name)
       io.to(players[0].id).emit('canType', game.getRow(), game.getCol())
@@ -102,7 +105,7 @@ class WordleMultiplayer {
 
   addLeaderToMaps(socket, playerName) {
     this.roomIDtoPlayers.set(socket.id, [{name: playerName, id: socket.id, leader: true}])
-    this.roomIDtoGame.set(socket.id, {rows: 5, cols: 5})
+    this.roomIDtoGame.set(socket.id, {inLobby: true, rows: 5, cols: 5})
     this.playerIDtoRoomID.set(socket.id, socket.id)
   }
 
@@ -112,7 +115,9 @@ class WordleMultiplayer {
   }
 
   emitIfRoomCodeValid(socket, roomID) {
-    socket.emit('validRoomCode', this.roomIDtoPlayers.has(roomID))
+    const isValidID = this.roomIDtoPlayers.has(roomID) && 
+                      this.getGame(roomID).inLobby
+    socket.emit('validRoomCode', isValidID)
   }
 
   emitJoinRoom(socket, player, roomID) {
@@ -163,7 +168,10 @@ class WordleMultiplayer {
 
   createNewWordle(roomID, playerID, settings) {
     const game = this.getGame(roomID)
+    game.inLobby = false
     game.wordle = new Wordle(settings)
+
+    // SEE IF YOU CAN REMOVE CUR TURN
     game.curTurn = playerID
   }
 
@@ -226,6 +234,8 @@ class WordleMultiplayer {
     if (wordle.isEndGame()) {
       this.pushLeaderToTop(players)
       this.emitNavigateToLobby(io, roomID, players)
+      game.inLobby = true
+
       this.printMaps()
       console.log("REACH END GAME")
       return
