@@ -79,9 +79,9 @@ const Keyboard = ({board, onKeyClick}) => {
 
     return (
         <div className='keyboard'>
-            <div>{keyboard[0].map((k, index) => <button style={{ backgroundColor: getBackgroundColor(k.color)}} key={index} onClick={onKeyClick}> {k.letter} </button>)}</div>
-            <div>{keyboard[1].map((k, index) => <button style={{ backgroundColor: getBackgroundColor(k.color)}} key={index} onClick={onKeyClick}> {k.letter} </button>)}</div>
-            <div>
+            <div className='keyboard-row'>{keyboard[0].map((k, index) => <button style={{ backgroundColor: getBackgroundColor(k.color)}} key={index} onClick={onKeyClick}> {k.letter} </button>)}</div>
+            <div className='keyboard-row'>{keyboard[1].map((k, index) => <button style={{ backgroundColor: getBackgroundColor(k.color)}} key={index} onClick={onKeyClick}> {k.letter} </button>)}</div>
+            <div className='keyboard-row'>
                 <button className='action' onClick={onKeyClick}>Enter</button>
                 {keyboard[2].map((k, index) => <button style={{ backgroundColor: getBackgroundColor(k.color)}} key={index} onClick={onKeyClick}> {k.letter} </button>)}
                 <button className='action' onClick={onKeyClick}>Delete</button>

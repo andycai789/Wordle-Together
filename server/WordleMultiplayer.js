@@ -191,6 +191,7 @@ class WordleMultiplayer {
 
     if (!wordle.isEndGame()) { 
       let result = wordle.accept(key)
+      // console.log(result)
       socket.to("room" + roomID).emit('board', wordle.getBoard())
     }
   }

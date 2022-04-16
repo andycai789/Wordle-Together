@@ -143,7 +143,7 @@ const Game = ({input, rowLength, colLength, word, handleKeyClick, wordList, sock
     }, [input.time])
 
     return (
-        <div>
+        <div className='boards'>
             <Board board={board}/>
             <Keyboard board={board} onKeyClick={handleKeyClick}/>
         </div>

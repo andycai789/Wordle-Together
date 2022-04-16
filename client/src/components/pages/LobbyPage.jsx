@@ -25,8 +25,6 @@ const LobbyPage = ({socket, onSettingsChange, permission, getPermission}) => {
         if (isLeader) {
             permission.current = 'game'
             socket.emit('startGame')
-        } else {
-            console.log("CANNOT START GAME BECAUSE YOU ARENT LEADER")
         }
     }
 
@@ -77,17 +75,15 @@ const LobbyPage = ({socket, onSettingsChange, permission, getPermission}) => {
 
                 <div className='startButtonContainer'>
                     <Link to={isLeader && '/game'} replace onClick={startGame}> 
-                        <button className='startButton'> Start Game </button>
+                        <button disabled={!isLeader} className='startButton'> Start Game </button>
                     </Link>
                 </div>
             </div>
 
             <div className="playersContainer">
-                <div className="playerBoxes">   
-                    {players.map((player, i) => {
-                        return <PlayerName key={i} name={player.name}/>
-                    })}
-                </div>
+                {players.map((player, i) => {
+                    return <PlayerName key={i} name={player.name}/>
+                })}
             </div>
         </div>
     )

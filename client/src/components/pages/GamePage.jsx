@@ -60,7 +60,8 @@ const GamePage = ({socket, settings, permission, getPermission}) => {
                 wordList={new Set(settings.wordList)}
                 handleKeyClick={pressKey}
                 socket={socket}
-                changeTyping={changeTyping}/>
+                changeTyping={changeTyping}
+            />
         </div>
     )
 }
