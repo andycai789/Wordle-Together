@@ -82,21 +82,19 @@ const HomePage = ({socket, permission}) => {
         <input className='inputBar' id='nameInputBar' type="text" name="name" maxLength="6" onChange={changeName}/>
       </form>
 
-      <Link className='toLobby' to='lobby' replace onClick={createRoom} onMouseEnter={() => setCreateLight("gggggg")} onMouseLeave={() => setCreateLight("zzzzzz")}>
-        <div className='lobbyButton'>
+      <div className='lobbyButton'>
+        <Link className='toLobby' to='lobby' replace onClick={createRoom} onMouseEnter={() => setCreateLight("gggggg")} onMouseLeave={() => setCreateLight("zzzzzz")}>
           <Row row={formatToRow("CREATE", createLight)}/>
           <Row row={formatToRow("ROOM  ", createLight)}/> 
-        </div>
-        
-  
-      </Link>
+        </Link>
+      </div>
 
-      <Link className='toLobby' to={validCode ? '/lobby' : '/'} replace onClick={joinRoom} onMouseEnter={() => setJoinLight("yyyyyy")} onMouseLeave={() => setJoinLight("zzzzzz")}>
-        <div className='lobbyButton' id='joinLobby'> 
+      <div className='lobbyButton' id='joinLobby'> 
+        <Link className='toLobby' to={validCode ? '/lobby' : '/'} replace onClick={joinRoom} onMouseEnter={() => setJoinLight("yyyyyy")} onMouseLeave={() => setJoinLight("zzzzzz")}>
           <Row row={formatToRow("JOIN  ", joinLight)}/>
           <Row row={formatToRow("ROOM  ", joinLight)}/> 
-        </div>
-      </Link>
+        </Link>  
+      </div>
 
       <form className='input' autoComplete="off" onSubmit={handleCodeSubmit}>
         <input className='inputBar' id='codeInputBar' type="text" name="name" onChange={changeRoomCode}/>

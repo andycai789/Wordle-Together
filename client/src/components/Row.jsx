@@ -5,7 +5,7 @@ import Box from './Box.jsx'
 
 const Row = ({row}) => {
     return (
-        <div className='row'>
+        <div className='game-row'>
             {row.map((col, index) => 
                 <Box key={index} color={col.color} letter={col.letter}/>)}
         </div>

@@ -2,8 +2,12 @@
     margin-top: 25px;
     overflow-y: auto;
     overflow-x: hidden;
-    height: 450px;
+    border-top: 1px solid #3a3a3c;
+    border-bottom: 1px solid #3a3a3c;
+    height: 350px;
     -ms-overflow-style: none;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 ::-webkit-scrollbar {

@@ -142,11 +142,11 @@ class Wordle {
             this.moveToNextCol()
         } else if (inputKey === 'ENTER') {
             if (!this.hasFilledRow()) {
-                return {endGame: false, message: 'Not enough letters.'}
+                return {win: false}
             }
 
             if (!this.inWordList()) {
-                return {endGame: false, message: 'Not in word list.'}
+                return {win: false}
             }
 
             this.changeColorsInRow()
@@ -154,10 +154,10 @@ class Wordle {
 
             if (this.isVictory()) {
                 this.endGameStatus = true
-                return {endGame: true, message: 'You won!'}
+                return {endGame: true, win: true}
             } else if (this.isDefeat()) {
                 this.endGameStatus = true
-                return {endGame: true, message: 'You lost!'}
+                return {endGame: true, win: false}
             }
         } else if ((inputKey === 'BACKSPACE' || inputKey === 'DELETE') && this.isDeletable()) {
             this.removePrevKeyFromBoard()

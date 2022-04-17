@@ -4,12 +4,16 @@ import {useState, useEffect, useRef} from 'react'
 import Game from '../Game.jsx'
 import PlayerName from '../PlayerName.jsx'
 import '../../css/GamePage.css';
+import Notification from '../Notification.jsx'
 
 const GamePage = ({socket, settings, permission, getPermission}) => {
     const [userInput, setUserInput] = useState({key: '', time: 0})
-    const canType = useRef(false)
     const [currentPlayer, setCurrentPlayer] = useState('')
+    const canType = useRef(false)
     const navigate = useNavigate()
+
+    const message = useRef('')
+    const [visible, setVisible] = useState(false)
 
     const pressKey = (event) => {
         if (canType.current) {
@@ -23,6 +27,12 @@ const GamePage = ({socket, settings, permission, getPermission}) => {
         canType.current = status
     }
 
+    const onMessage = (newMessage) => {
+        message.current = newMessage
+        setVisible(true)
+        setTimeout(() => setVisible(false), 2000)
+    }
+
     useEffect(() => {
         if (getPermission() !== 'game') {
             navigate('/', {replace: true})
@@ -33,6 +43,10 @@ const GamePage = ({socket, settings, permission, getPermission}) => {
         socket.on('setCurrentPlayer', (name) => {
             setCurrentPlayer(name)
         })
+
+        socket.on('gameResult', (message) => {
+            onMessage(message)
+        }) 
 
         socket.on('returnToLobby', () => {
             permission.current = 'lobby'
@@ -48,6 +62,10 @@ const GamePage = ({socket, settings, permission, getPermission}) => {
 
     return (
         <div className="gamePage">
+            <div className='notificationMessage'>
+                <Notification visible={visible} message={message.current} position='top-center'/>
+            </div>
+
             <div className="playerTurn">
                 <PlayerName name={currentPlayer}/>
             </div>
@@ -61,6 +79,7 @@ const GamePage = ({socket, settings, permission, getPermission}) => {
                 handleKeyClick={pressKey}
                 socket={socket}
                 changeTyping={changeTyping}
+                handleMessage={onMessage}
             />
         </div>
     )

@@ -51,8 +51,8 @@ const LobbyPage = ({socket, onSettingsChange, permission, getPermission}) => {
 
     return (
         <div className='lobbyPage'>
-            <div className="settings">
-                <div className='title'> Settings </div>
+            <div className="game-settings">
+                <div className='game-title'> Settings </div>
 
                 <div className='settingsForm'>
                     <div> Code: </div>
@@ -61,14 +61,14 @@ const LobbyPage = ({socket, onSettingsChange, permission, getPermission}) => {
 
                 <div className='settingsForm'>
                     Number of Attempts(Rows):
-                    <select disabled={!isLeader} name="rows" className="settingsSelect" value={rowInput} onChange={changeRows} >
+                    <select disabled={!isLeader} className="settingsSelect" value={rowInput} onChange={changeRows} >
                         {Array.from({length: 12}, (_,i) => {return <option key={i}> {i + 5} </option>})}
                     </select>
                 </div>
 
                 <div className='settingsForm'>
                     Number of Letters(Columns):
-                    <select disabled={!isLeader} name="columns" className="settingsSelect" value={colInput} onChange={changeCols}>
+                    <select disabled={!isLeader} className="settingsSelect" value={colInput} onChange={changeCols}>
                         {Array.from({length: 12}, (_,i) => {return <option key={i}> {i + 5} </option>})}
                     </select>
                 </div>

@@ -13,6 +13,8 @@
 }
 
 .lobbyButton {
+    display: flex;
+    justify-content: center;
     margin: 50px 15px 50px 15px;
 }
 
@@ -55,3 +57,8 @@
     background-color: #3a3a3c;
 }
 
+@media screen and (max-width: 400px) {
+    .lobbyButton {
+        display: block;
+    }
+}

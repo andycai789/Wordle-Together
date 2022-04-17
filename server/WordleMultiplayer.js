@@ -163,7 +163,7 @@ class WordleMultiplayer {
     return this.getPlayers(roomID)[0].name
   }
 
-  createNewWordle(roomID, playerID, settings) {
+  createNewWordle(roomID, settings) {
     const game = this.getGame(roomID)
     game.inLobby = false
     game.wordle = new Wordle(settings)
@@ -172,7 +172,7 @@ class WordleMultiplayer {
   emitStartGame(io, socket) {
     const roomID = this.getRoomID(socket.id)
     const settings = this.getSettings(roomID)
-    this.createNewWordle(roomID, socket.id, settings)
+    this.createNewWordle(roomID, settings)
     io.to("room" + roomID).emit('startGameForPlayers', settings)
   }
 
@@ -191,7 +191,21 @@ class WordleMultiplayer {
 
     if (!wordle.isEndGame()) { 
       let result = wordle.accept(key)
-      // console.log(result)
+
+      if (wordle.isEndGame()) {
+        if (result.win) {
+          socket.emit('gameResult', "YOU WON!")
+          setTimeout(() => {
+            socket.emit('gameResult', "Redirecting WINNERS to lobby..." )
+          }, 3000)
+
+        } else {
+          socket.emit('gameResult', wordle.word)
+          setTimeout(() => {
+            socket.emit('gameResult', "Redirecting LOSERS to lobby..." )
+          }, 3000)
+        }
+      }
       socket.to("room" + roomID).emit('board', wordle.getBoard())
     }
   }
@@ -205,7 +219,7 @@ class WordleMultiplayer {
   emitNavigateToLobby(io, roomID) {
       setTimeout( () => {
         io.to("room" + roomID).emit('returnToLobby')
-      }, 1000)
+      }, 6000)
   }
 
   emitNextPlayerSettings(io, nextPlayer, row, col) {

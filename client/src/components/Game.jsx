@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react'
-
 import Board from './Board.jsx'
 import Keyboard from './Keyboard.jsx'
 
@@ -37,14 +36,6 @@ const hasFilledRow = (column, maxColumn) => {
 
 const hasEmptyBox = (column, maxColumn) => {
     return column < maxColumn
-}
-
-const isWord = (boardRow, word) => {
-    return convertBoardRowToString(boardRow) === word.toUpperCase();
-}
-
-const isPastMaxRow = (curRow, maxRow) => {
-    return curRow === maxRow
 }
 
 const setGreenBoxes = (map, boardRow, word) => {
@@ -87,17 +78,11 @@ const changeColorsInRow = (boardRow, word) => {
     setGreyBoxes(boardRow)
 }
 
-const Game = ({input, rowLength, colLength, word, handleKeyClick, wordList, socket, changeTyping}) => {
+const Game = ({input, rowLength, colLength, word, handleKeyClick, wordList, socket, changeTyping, handleMessage}) => {
+    const message = useRef('')
     const [board, setBoard] = useState(createMxNBoard(5, 5))
     const row = useRef(0)
     const col = useRef(0)
-    const isEndGame = useRef(false)
-
-    const checkWinConditions = (newBoard) => {
-        if (isWord(newBoard[row.current], word) || isPastMaxRow(row.current, rowLength - 1)) {
-            isEndGame.current = true
-        }
-    }
 
     useEffect(() => {
         socket.on('board', board => {
@@ -120,19 +105,19 @@ const Game = ({input, rowLength, colLength, word, handleKeyClick, wordList, sock
             setBoard(newBoard)
         } else if (input.key === 'ENTER') {
             if (!hasFilledRow(col.current, colLength)) {
+                handleMessage('Not enough letters')
                 return
             }
 
             if (!inWordList(newBoard[row.current], wordList)) {
+                handleMessage('Not in word list')
                 return 
             }
 
             changeColorsInRow(newBoard[row.current], word)
-            checkWinConditions(newBoard)
             row.current += 1
             col.current = 0
             setBoard(newBoard)
-
             changeTyping(false)
             socket.emit('nextPlayer', row.current, col.current)
         } else if ((input.key === 'BACKSPACE' || input.key === 'DELETE') && isDeletable(col.current)) {

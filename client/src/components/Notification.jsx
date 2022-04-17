@@ -1,19 +1,32 @@
-import React from 'react'
+import React, { useState, useEffect} from 'react'
+import {Toast} from 'react-bootstrap'
+import ToastContainer from 'react-bootstrap/ToastContainer'
 
-import '../css/Notification.css'
+const Notification = ({visible, message, position}) => {
+  const [show, setShow] = useState(false);
 
-const Notification = ({notification, hidePopUp}) => {
-  if (notification.visible) {
-    setTimeout(() => hidePopUp(), 1000)
-  }
+  useEffect(() => {
+    if (!visible) {
+      return 
+    }
+
+    setShow(true)
+  }, [visible])
 
   return (
-    <div className='notificationContainer'>
-        <div className= {`notification ${notification.visible ? 'visible' : 'hidden'}`}> 
-          {notification.message}
-        </div>
+    <div
+      aria-live="polite"
+      aria-atomic="true"
+      className="position-relative"
+      style={{color: 'black', textAlign: 'center', fontWeight: 'bold'}}> 
+
+      <ToastContainer style={{width: '200px'}} position={position}>
+        <Toast onClose={() => setShow(false)} show={show} delay={3000} autohide>
+          <Toast.Body>{message}</Toast.Body>
+        </Toast>
+      </ToastContainer>
     </div>
-  )
+  );
 }
 
 

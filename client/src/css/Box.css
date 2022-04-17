@@ -27,9 +27,8 @@
 }
 
 
-@media screen and (max-width: 875px) {
+@media screen and (max-width: 450px) {
     .box {
         font-size: 110%;
     }
-
 }
