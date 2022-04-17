@@ -25,14 +25,9 @@ io.on('connection', socket => {
     console.log(socket.id + " created a room")
   }) 
 
-  socket.on('checkCode', (roomID) => {
-    wmp.emitIfRoomCodeValid(socket, roomID)
-  })
-
-  socket.on('joinRoom', (player, roomID) => {
-    wmp.emitJoinRoom(socket, player, roomID)
+  socket.on('checkCode', (player, roomID) => {
+    wmp.emitCodeResult(socket, player, roomID)
     wmp.printMaps()
-    console.log(player.name + " joined " + roomID)
   })
 
   socket.on('initialLobbySettings', () => {

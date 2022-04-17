@@ -82,7 +82,7 @@ const LobbyPage = ({socket, onSettingsChange, permission, getPermission}) => {
 
             <div className="playersContainer">
                 {players.map((player, i) => {
-                    return <ColoredRow key={i} name={player.name} colors={isLeader ? 'gggggg' : 'xxxxxx'}/>
+                    return <ColoredRow key={i} name={player.name} colors={player.leader ? 'gggggg' : 'xxxxxx'}/>
                 })}
             </div>
         </div>

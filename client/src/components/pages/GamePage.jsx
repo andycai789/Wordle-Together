@@ -11,7 +11,6 @@ const GamePage = ({socket, settings, permission, getPermission}) => {
     const [currentPlayer, setCurrentPlayer] = useState('')
     const canType = useRef(false)
     const navigate = useNavigate()
-
     const message = useRef('')
     const [visible, setVisible] = useState(false)
 
@@ -30,7 +29,7 @@ const GamePage = ({socket, settings, permission, getPermission}) => {
     const onMessage = (newMessage) => {
         message.current = newMessage
         setVisible(true)
-        setTimeout(() => setVisible(false), 2000)
+        setTimeout(() => setVisible(false), 3000)
     }
 
     useEffect(() => {
@@ -62,12 +61,10 @@ const GamePage = ({socket, settings, permission, getPermission}) => {
 
     return (
         <div className="gamePage">
-            <div className='notificationMessage'>
-                <Notification visible={visible} message={message.current} position='top-center'/>
-            </div>
+            <Notification visible={visible} message={message.current} position='middle-center'/>
 
             <div className="playerTurn">
-                <ColoredRow name={currentPlayer} colors={'xxxxxx'}/>
+                <ColoredRow name={currentPlayer} colors={'zzzzzz'}/>
             </div>
 
             <Game 

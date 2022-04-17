@@ -18,7 +18,7 @@ const Notification = ({visible, message, position}) => {
       aria-live="polite"
       aria-atomic="true"
       className="position-relative"
-      style={{color: 'black', textAlign: 'center', fontWeight: 'bold'}}> 
+      style={{minHeight: '75px', color: 'black', textAlign: 'center', fontWeight: 'bold'}}> 
 
       <ToastContainer style={{width: '200px'}} position={position}>
         <Toast onClose={() => setShow(false)} show={show} delay={3000} autohide>

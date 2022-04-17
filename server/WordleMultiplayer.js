@@ -111,10 +111,19 @@ class WordleMultiplayer {
     socket.join("room" + socket.id)
   }
 
-  emitIfRoomCodeValid(socket, roomID) {
-    const isValidID = this.roomIDtoPlayers.has(roomID) && 
-                      this.getGame(roomID).inLobby
-    socket.emit('validRoomCode', isValidID)
+  emitCodeResult(socket, player, roomID) {
+    if (this.roomIDtoPlayers.has(roomID)) {
+      if (this.getGame(roomID).inLobby) {
+        this.emitJoinRoom(socket, player, roomID)
+        socket.emit('validCode')
+        console.log(player.name + " joined " + roomID)
+      } else {
+        console.log("ALREADY IN GAME")
+        socket.emit('alreadyInGame')
+      }
+    } else {
+      socket.emit('invalidCode')
+    }
   }
 
   emitJoinRoom(socket, player, roomID) {
