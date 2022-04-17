@@ -2,7 +2,7 @@ import React from 'react'
 import {useNavigate} from "react-router-dom";
 import {useState, useEffect, useRef} from 'react'
 import Game from '../Game.jsx'
-import PlayerName from '../PlayerName.jsx'
+import ColoredRow from '../ColoredRow.jsx';
 import '../../css/GamePage.css';
 import Notification from '../Notification.jsx'
 
@@ -67,7 +67,7 @@ const GamePage = ({socket, settings, permission, getPermission}) => {
             </div>
 
             <div className="playerTurn">
-                <PlayerName name={currentPlayer}/>
+                <ColoredRow name={currentPlayer} colors={'xxxxxx'}/>
             </div>
 
             <Game 

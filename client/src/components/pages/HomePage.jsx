@@ -1,29 +1,11 @@
 import {useState, useRef, useEffect} from 'react'
-import {Link, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import '../../css/HomePage.css';
-import Row from '../Row.jsx'
-
-const getColorFromLetter = (color) => {
-  if (color === 'G') {
-    return 'green'
-  } else if (color === 'Y') {
-    return 'yellow'
-  } else if (color === 'X') {
-    return 'gray'
-  } else {
-    return ''
-  }
-}
-
-const formatToRow = (word, color) => {
-  let wordArray = word.toUpperCase().split('')
-  let c = color.toUpperCase()
-  return wordArray.map((letter, i) => ({letter: letter, color: getColorFromLetter(c[i])}))
-}
+import ColoredRow from '../ColoredRow.jsx';
 
 const HomePage = ({socket, permission}) => {
-  const [createLight, setCreateLight] = useState("zzzzzz")
-  const [joinLight, setJoinLight] = useState("zzzzzz")
+  const [createColors, setCreateLight] = useState("zzzzzz")
+  const [joinColors, setJoinLight] = useState("zzzzzz")
   const [validCode, setValidCode] = useState(false)
   const name = useRef('')
   const roomCode = useRef('')
@@ -33,16 +15,27 @@ const HomePage = ({socket, permission}) => {
     name.current = event.target.value.toUpperCase()
   };
 
+  const preventNameSubmit = (event) => {
+    event.preventDefault();
+  }
+
+  const createRoom = () => {
+    socket.emit('createRoom', name.current)
+    permission.current = 'lobby'
+    navigate('/lobby', {replace: true})
+  }
+
+
+
+
+
+
+  
   const changeRoomCode = (event) => {
     roomCode.current = event.target.value
     setValidCode(false)
     socket.emit('checkCode', roomCode.current)
   };
-
-  const createRoom = () => {
-    socket.emit('createRoom', name.current)
-    permission.current = 'lobby'
-  }
 
   const joinRoom = () => {
     if (validCode) {
@@ -53,18 +46,16 @@ const HomePage = ({socket, permission}) => {
     }
   }
 
-  const handleNameSubmit = (event) => {
-    event.preventDefault();
+  const handleCodeSubmit = (event) => {
+    event.preventDefault()
+    joinRoom()
   }
 
-  const handleCodeSubmit = (event) => {
-    event.preventDefault();
-    if (validCode) {
-      joinRoom()
-      permission.current ='lobby'
-      navigate('/lobby', {replace: true})
-    }
-  }
+
+
+
+
+
 
   useEffect(() => {
     socket.on('validRoomCode', (response) => {
@@ -75,29 +66,29 @@ const HomePage = ({socket, permission}) => {
   return (
     <div className='HomePage'>
       <div className="nameBox">
-        <Row row={formatToRow("NAME", 'zzzzz')}/>
+        <ColoredRow name="NAME" colors='zzzz'/>
       </div>
 
-      <form className='input' autoComplete="off" onSubmit={handleNameSubmit}>
+      <form className='input' autoComplete="off" onSubmit={preventNameSubmit}>
         <input className='inputBar' id='nameInputBar' type="text" name="name" maxLength="6" onChange={changeName}/>
       </form>
 
-      <div className='lobbyButton'>
-        <Link className='toLobby' to='lobby' replace onClick={createRoom} onMouseEnter={() => setCreateLight("gggggg")} onMouseLeave={() => setCreateLight("zzzzzz")}>
-          <Row row={formatToRow("CREATE", createLight)}/>
-          <Row row={formatToRow("ROOM  ", createLight)}/> 
-        </Link>
+      <div className='lobbyButtonContainer'>
+        <div className='lobbyButton' onClick={createRoom} onMouseEnter={() => setCreateLight("gggggg")} onMouseLeave={() => setCreateLight("zzzzzz")}>
+          <ColoredRow name="CREATE" colors={createColors}/>
+          <ColoredRow name="ROOM" colors={createColors}/> 
+        </div>
       </div>
 
-      <div className='lobbyButton' id='joinLobby'> 
-        <Link className='toLobby' to={validCode ? '/lobby' : '/'} replace onClick={joinRoom} onMouseEnter={() => setJoinLight("yyyyyy")} onMouseLeave={() => setJoinLight("zzzzzz")}>
-          <Row row={formatToRow("JOIN  ", joinLight)}/>
-          <Row row={formatToRow("ROOM  ", joinLight)}/> 
-        </Link>  
+      <div className='lobbyButtonContainer'> 
+        <div className='lobbyButton' onClick={joinRoom} onMouseEnter={() => setJoinLight("yyyyyy")} onMouseLeave={() => setJoinLight("zzzzzz")}>
+          <ColoredRow name="JOIN" colors={joinColors}/>
+          <ColoredRow name="ROOM" colors={joinColors}/> 
+        </div>
       </div>
 
       <form className='input' autoComplete="off" onSubmit={handleCodeSubmit}>
-        <input className='inputBar' id='codeInputBar' type="text" name="name" onChange={changeRoomCode}/>
+        <input className='inputBar' id='codeInputBar' type="text" name="name"/>
       </form>
     </div>
   )

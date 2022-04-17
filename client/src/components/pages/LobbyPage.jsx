@@ -1,7 +1,7 @@
 import {Link, useNavigate} from "react-router-dom";
 import {useState, useEffect} from 'react'
 import '../../css/LobbyPage.css';
-import PlayerName from '../PlayerName.jsx';
+import ColoredRow from '../ColoredRow.jsx';
 
 const LobbyPage = ({socket, onSettingsChange, permission, getPermission}) => {
     const [rowInput, setRowInput] = useState(5)
@@ -82,7 +82,7 @@ const LobbyPage = ({socket, onSettingsChange, permission, getPermission}) => {
 
             <div className="playersContainer">
                 {players.map((player, i) => {
-                    return <PlayerName key={i} name={player.name}/>
+                    return <ColoredRow key={i} name={player.name} colors={isLeader ? 'gggggg' : 'xxxxxx'}/>
                 })}
             </div>
         </div>
