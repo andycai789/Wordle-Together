@@ -73,7 +73,7 @@ class WordleMultiplayer {
       this.emitNavigateToLobby(io, roomID, players)
       game.inLobby = true
     } else if (dcPlayerIndex === 0) {
-      io.to("room" + roomID).emit("setCurrentPlayer", players[0].name)
+      io.to("room" + roomID).emit("setCurrentPlayer", players[0])
       io.to(players[0].id).emit('canType', game.wordle.getRow(), game.wordle.getCol())
     }
   }
@@ -118,7 +118,6 @@ class WordleMultiplayer {
         socket.emit('validCode')
         console.log(player.name + " joined " + roomID)
       } else {
-        console.log("ALREADY IN GAME")
         socket.emit('alreadyInGame')
       }
     } else {
@@ -168,10 +167,6 @@ class WordleMultiplayer {
     }
   }
 
-  getFirstPlayerName(roomID) {
-    return this.getPlayers(roomID)[0].name
-  }
-
   createNewWordle(roomID, settings) {
     const game = this.getGame(roomID)
     game.inLobby = false
@@ -189,7 +184,7 @@ class WordleMultiplayer {
     const roomID = this.getRoomID(socket.id)
     const players = this.getPlayers(roomID)
     const board = this.getGame(roomID).wordle.getBoard()
-    io.to("room" + roomID).emit('setCurrentPlayer', this.getFirstPlayerName(roomID))
+    io.to("room" + roomID).emit('setCurrentPlayer', players[0])
     io.to("room" + roomID).emit('board', board)
     io.to(players[0].id).emit('canType', 0, 0)
   }
@@ -234,7 +229,7 @@ class WordleMultiplayer {
   emitNextPlayerSettings(io, nextPlayer, row, col) {
     const roomID = this.getRoomID(nextPlayer.id)
     io.to(nextPlayer.id).emit('canType', row, col)
-    io.to("room" + roomID).emit('setCurrentPlayer', nextPlayer.name)
+    io.to("room" + roomID).emit('setCurrentPlayer', nextPlayer)
   }
 
   emitNextPlayer(io, socket, row, col) {

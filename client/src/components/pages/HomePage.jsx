@@ -81,14 +81,14 @@ const HomePage = ({socket, permission}) => {
       </form>
 
       <div className='lobbyButtonContainer'>
-        <div className='lobbyButton' onClick={createRoom} onMouseEnter={() => setCreateLight("gggggg")} onMouseLeave={() => setCreateLight("zzzzzz")}>
+        <div className='lobbyButton' onClick={createRoom} onMouseEnter={() => setCreateLight("yyyyyy")} onMouseLeave={() => setCreateLight("zzzzzz")}>
           <ColoredRow name="CREATE" colors={createColors}/>
           <ColoredRow name="ROOM" colors={createColors}/> 
         </div>
       </div>
 
       <div className='lobbyButtonContainer'> 
-        <div className='lobbyButton' onClick={submitCode} onMouseEnter={() => setJoinLight("yyyyyy")} onMouseLeave={() => setJoinLight("zzzzzz")}>
+        <div className='lobbyButton' onClick={submitCode} onMouseEnter={() => setJoinLight("gggggg")} onMouseLeave={() => setJoinLight("zzzzzz")}>
           <ColoredRow name="JOIN" colors={joinColors}/>
           <ColoredRow name="ROOM" colors={joinColors}/> 
         </div>

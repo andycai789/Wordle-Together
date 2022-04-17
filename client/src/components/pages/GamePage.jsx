@@ -8,7 +8,7 @@ import Notification from '../Notification.jsx'
 
 const GamePage = ({socket, settings, permission, getPermission}) => {
     const [userInput, setUserInput] = useState({key: '', time: 0})
-    const [currentPlayer, setCurrentPlayer] = useState('')
+    const [currentPlayer, setCurrentPlayer] = useState({name: '------', id: socket.id, leader: false})
     const canType = useRef(false)
     const navigate = useNavigate()
     const message = useRef('')
@@ -39,8 +39,8 @@ const GamePage = ({socket, settings, permission, getPermission}) => {
         }
 
         window.addEventListener('keydown', pressKey)
-        socket.on('setCurrentPlayer', (name) => {
-            setCurrentPlayer(name)
+        socket.on('setCurrentPlayer', (player) => {
+            setCurrentPlayer(player)
         })
 
         socket.on('gameResult', (message) => {
@@ -64,7 +64,10 @@ const GamePage = ({socket, settings, permission, getPermission}) => {
             <Notification visible={visible} message={message.current} position='middle-center'/>
 
             <div className="playerTurn">
-                <ColoredRow name={currentPlayer} colors={'zzzzzz'}/>
+                <ColoredRow 
+                    name={currentPlayer.name} 
+                    colors={currentPlayer.id === socket.id ? 'gggggg' : 'zzzzzz'}
+                />
             </div>
 
             <Game 

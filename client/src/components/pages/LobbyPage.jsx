@@ -28,6 +28,16 @@ const LobbyPage = ({socket, onSettingsChange, permission, getPermission}) => {
         }
     }
 
+    const getPlayerColor = (player) => {
+        if (player.leader) {
+            return 'yyyyyy'
+        } else if (player.id === socket.id) {
+            return 'gggggg'
+        } else {
+            return 'xxxxxx'
+        }
+    }
+
     useEffect(() => {
         if (getPermission() !== 'lobby') {
             navigate('/', {replace: true})
@@ -82,7 +92,7 @@ const LobbyPage = ({socket, onSettingsChange, permission, getPermission}) => {
 
             <div className="playersContainer">
                 {players.map((player, i) => {
-                    return <ColoredRow key={i} name={player.name} colors={player.leader ? 'gggggg' : 'xxxxxx'}/>
+                    return <ColoredRow key={i} name={player.name} colors={getPlayerColor(player)}/>
                 })}
             </div>
         </div>
