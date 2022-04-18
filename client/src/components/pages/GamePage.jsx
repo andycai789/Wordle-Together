@@ -44,7 +44,6 @@ const GamePage = ({socket, settings, permission, getPermission}) => {
         })
 
         socket.on('gameNotification', (message) => {
-            console.log("GOT IT")
             onMessage(message)
         })
         

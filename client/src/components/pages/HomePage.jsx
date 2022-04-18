@@ -11,6 +11,7 @@ const HomePage = ({socket, permission}) => {
   const roomCode = useRef('')
   const navigate = useNavigate()
 
+  const allowSubmit = useRef(true)
   const message = useRef('')
   const [visible, setVisible] = useState(false)
 
@@ -38,10 +39,15 @@ const HomePage = ({socket, permission}) => {
   }
 
   const submitCode = () => {
+    if (!allowSubmit.current) {
+      return
+    }
+
     if (name.current === '') {
       name.current = '------'
     }
 
+    allowSubmit.current = false;
     socket.emit('checkCode', {name: name.current, id: socket.id, leader: false}, roomCode.current)
   }
 
@@ -54,18 +60,21 @@ const HomePage = ({socket, permission}) => {
     socket.on('validCode', () => {
       permission.current = 'lobby'
       navigate('/lobby', {replace: true})
+      allowSubmit.current = true
     })
 
     socket.on('invalidCode', () => {
       message.current = 'Please enter a valid code.'
       setVisible(true)
       setTimeout(() => setVisible(false), 3000)
+      allowSubmit.current = true
     })
 
     socket.on('alreadyInGame', () => {
       message.current = 'Game in progress.'
       setVisible(true)
       setTimeout(() => setVisible(false), 3000)
+      allowSubmit.current = true
     })
   }, [])
 

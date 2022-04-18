@@ -31,6 +31,8 @@ function App() {
         <Route path='/lobby' element={<LobbyPage socket={socket} permission={permission} getPermission={getPermission} onSettingsChange={setSettings}/>}/>
         <Route path='/game' element={<GamePage socket={socket} permission={permission} getPermission={getPermission} settings={settings}/>}/> 
       </Routes>
+      <div style={{marginBottom: '50px'}}/>
+
     </Router>
   )
 }
