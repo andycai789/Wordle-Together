@@ -1,3 +1,4 @@
+const path = require('path')
 const http = require('http')
 const express = require('express')
 const socketio = require('socket.io')
@@ -6,9 +7,16 @@ const WordleMultiplayer = require('./WordleMultiplayer.js')
 const port = process.env.PORT || 5000
 const app = express()
 const server = http.createServer(app)
-const io = socketio(server, {'pingInterval': 2000, 'pingTimeout': 3000})
+const io = socketio(server)
 
 const wmp = new WordleMultiplayer()
+
+const build = path.join(__dirname, '../client/build')
+app.use(express.static(build))
+
+app.use((req, res, next) => {
+  res.sendFile(path.join(__dirname, "../client/build", "index.html"));
+});
 
 io.on('connection', socket => {
   console.log(socket.id + " connected") 

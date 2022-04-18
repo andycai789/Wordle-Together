@@ -11,7 +11,7 @@ const Header = () => {
 
     return (
         <div className='Header'>
-            <button id='headerLink' onClick={handleOnClick}> Wordle with Friends</button>
+            <button id='headerLink' onClick={handleOnClick}> Wordle Together</button>
         </div>
     );
 }
