@@ -50,7 +50,6 @@ const HomePage = ({socket, permission}) => {
     submitCode()
   }
 
-
   useEffect(() => {
     socket.on('validCode', () => {
       permission.current = 'lobby'

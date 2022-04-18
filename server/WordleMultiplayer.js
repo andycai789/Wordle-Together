@@ -45,7 +45,9 @@ class WordleMultiplayer {
   removePlayerFromList(playerID, playerList) {
     const indexOfPlayer = playerList.findIndex(player => player.id === playerID)
     
-    return {isLeader: playerList.splice(indexOfPlayer, 1)[0].leader, index: indexOfPlayer}
+    const removedPlayer =  playerList.splice(indexOfPlayer, 1)[0]
+
+    return {info: removedPlayer, isLeader: removedPlayer.leader, index: indexOfPlayer}
   }
 
   removeLobby(roomID, playerID) {
@@ -96,6 +98,7 @@ class WordleMultiplayer {
     this.removePlayer(io, socket.id, players, removedPlayer.isLeader)
 
     if (!this.getGame(roomID).inLobby) {
+      io.to("room" + roomID).emit('gameNotification', removedPlayer.info.name + " has disconnected.")
       this.handleDCInGame(io, roomID, removedPlayer.index)
     }
   }
@@ -198,15 +201,15 @@ class WordleMultiplayer {
 
       if (wordle.isEndGame()) {
         if (result.win) {
-          socket.emit('gameResult', "YOU WON!")
+          socket.emit('gameNotification', "YOU WON!")
           setTimeout(() => {
-            socket.emit('gameResult', "Redirecting WINNERS to lobby..." )
+            socket.emit('gameNotification', "Redirecting WINNERS to lobby..." )
           }, 3000)
 
         } else {
-          socket.emit('gameResult', wordle.word)
+          socket.emit('gameNotification', wordle.word)
           setTimeout(() => {
-            socket.emit('gameResult', "Redirecting LOSERS to lobby..." )
+            socket.emit('gameNotification', "Redirecting LOSERS to lobby..." )
           }, 3000)
         }
       }

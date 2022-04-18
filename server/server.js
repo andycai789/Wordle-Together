@@ -13,7 +13,7 @@ const wmp = new WordleMultiplayer()
 io.on('connection', socket => {
   console.log(socket.id + " connected") 
 
-  socket.on('disconnect', () => {
+  socket.on('disconnect', () => {``
     console.log(socket.id + " disconnected")
     wmp.disconnectPlayer(io, socket)
     wmp.printMaps()

@@ -43,10 +43,11 @@ const GamePage = ({socket, settings, permission, getPermission}) => {
             setCurrentPlayer(player)
         })
 
-        socket.on('gameResult', (message) => {
+        socket.on('gameNotification', (message) => {
+            console.log("GOT IT")
             onMessage(message)
-        }) 
-
+        })
+        
         socket.on('returnToLobby', () => {
             permission.current = 'lobby'
             navigate('/lobby', {replace: true})
