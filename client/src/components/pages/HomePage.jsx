@@ -5,8 +5,8 @@ import ColoredRow from '../ColoredRow.jsx';
 import Notification from '../Notification.jsx'
 
 const HomePage = ({socket, permission}) => {
-  const [createColors, setCreateLight] = useState("zzzzzz")
-  const [joinColors, setJoinLight] = useState("zzzzzz")
+  const [createColor, setCreateLight] = useState("none")
+  const [joinColor, setJoinLight] = useState("none")
   const name = useRef('')
   const roomCode = useRef('')
   const navigate = useNavigate()
@@ -71,34 +71,33 @@ const HomePage = ({socket, permission}) => {
     })
 
     socket.on('alreadyInGame', () => {
-      message.current = 'Game in progress.'
-      setVisible(true)
-      setTimeout(() => setVisible(false), 3000)
       allowSubmit.current = true
+      // permission.current = 'game'
+      // navigate('/lobby', {replace: true})
     })
   }, [])
 
   return (
     <div className='HomePage'>
       <div className="nameBox">
-        <ColoredRow name="NAME" colors='zzzz'/>
+        <ColoredRow name="NAME" color='z'/>
       </div>
 
       <form className='input' autoComplete="off" onSubmit={preventNameSubmit}>
-        <input className='inputBar' id='nameInputBar' type="text" name="name" maxLength="6" onChange={changeName}/>
+        <input className='inputBar' id='nameInputBar' type="text" name="name" maxLength="16" onChange={changeName}/>
       </form>
 
       <div className='lobbyButtonContainer'>
-        <div className='lobbyButton' onClick={createRoom} onMouseEnter={() => setCreateLight("yyyyyy")} onMouseLeave={() => setCreateLight("zzzzzz")}>
-          <ColoredRow name="CREATE" colors={createColors}/>
-          <ColoredRow name="ROOM" colors={createColors}/> 
+        <div className='lobbyButton' onClick={createRoom} onMouseEnter={() => setCreateLight("yellow")} onMouseLeave={() => setCreateLight("none")}>
+          <ColoredRow name="CREATE" color={createColor}/>
+          <ColoredRow name="ROOM" color={createColor}/> 
         </div>
       </div>
 
       <div className='lobbyButtonContainer'> 
-        <div className='lobbyButton' onClick={submitCode} onMouseEnter={() => setJoinLight("gggggg")} onMouseLeave={() => setJoinLight("zzzzzz")}>
-          <ColoredRow name="JOIN" colors={joinColors}/>
-          <ColoredRow name="ROOM" colors={joinColors}/> 
+        <div className='lobbyButton' onClick={submitCode} onMouseEnter={() => setJoinLight("green")} onMouseLeave={() => setJoinLight("none")}>
+          <ColoredRow name="JOIN" color={joinColor}/>
+          <ColoredRow name="ROOM" color={joinColor}/> 
         </div>
       </div>
 

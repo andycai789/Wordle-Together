@@ -121,6 +121,10 @@ class WordleMultiplayer {
         socket.emit('validCode')
         console.log(player.name + " joined " + roomID)
       } else {
+        // this.emitJoinRoom(socket, player, roomID)
+        // this.
+
+
         socket.emit('alreadyInGame')
       }
     } else {

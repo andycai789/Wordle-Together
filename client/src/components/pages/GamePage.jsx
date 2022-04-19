@@ -66,7 +66,7 @@ const GamePage = ({socket, settings, permission, getPermission}) => {
             <div className="playerTurn">
                 <ColoredRow 
                     name={currentPlayer.name} 
-                    colors={currentPlayer.id === socket.id ? 'gggggg' : 'zzzzzz'}
+                    color={currentPlayer.id === socket.id ? 'green' : 'none'}
                 />
             </div>
 

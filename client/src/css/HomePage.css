@@ -1,5 +1,5 @@
 .HomePage {
-    min-width: 320px;
+    min-width: 250px;
 }
 
 .nameBox {
@@ -53,6 +53,10 @@
 
 @media screen and (max-width: 400px) {
     .lobbyButton {
+        display: block;
+    }
+
+    .lobbyButtonContainer {
         display: block;
     }
 }

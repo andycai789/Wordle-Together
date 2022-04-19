@@ -30,11 +30,11 @@ const LobbyPage = ({socket, onSettingsChange, permission, getPermission}) => {
 
     const getPlayerColor = (player) => {
         if (player.leader) {
-            return 'yyyyyy'
+            return 'yellow'
         } else if (player.id === socket.id) {
-            return 'gggggg'
+            return 'green'
         } else {
-            return 'xxxxxx'
+            return 'none'
         }
     }
 
@@ -92,7 +92,7 @@ const LobbyPage = ({socket, onSettingsChange, permission, getPermission}) => {
 
             <div className="playersContainer">
                 {players.map((player, i) => {
-                    return <ColoredRow key={i} name={player.name} colors={getPlayerColor(player)}/>
+                    return <ColoredRow key={i} name={player.name} color={getPlayerColor(player)}/>
                 })}
             </div>
         </div>
