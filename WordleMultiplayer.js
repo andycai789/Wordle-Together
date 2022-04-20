@@ -72,7 +72,7 @@ class WordleMultiplayer {
 
     if (game.wordle.isEndGame()) {
       this.pushLeaderToTop(this.getPlayers(roomID))
-      this.emitNavigateToLobby(io, roomID, players)
+      this.emitNavigateToLobby(io, roomID)
       game.inLobby = true
     } else if (dcPlayerIndex === 0) {
       io.to("room" + roomID).emit("setCurrentPlayer", players[0])
