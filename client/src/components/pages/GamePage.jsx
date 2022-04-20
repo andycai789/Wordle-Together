@@ -1,10 +1,10 @@
 import React from 'react'
 import {useNavigate} from "react-router-dom";
 import {useState, useEffect, useRef} from 'react'
-import Game from '../Game.jsx'
-import ColoredRow from '../ColoredRow.jsx';
 import '../../css/GamePage.css';
 import Notification from '../Notification.jsx'
+import ColoredRow from '../ColoredRow.jsx';
+import Game from '../Game.jsx'
 
 const GamePage = ({socket, settings, permission, getPermission}) => {
     const [userInput, setUserInput] = useState({key: '', time: 0})
@@ -16,7 +16,15 @@ const GamePage = ({socket, settings, permission, getPermission}) => {
 
     const pressKey = (event) => {
         if (canType.current) {
-            let key = (event instanceof KeyboardEvent) ? event.key.toUpperCase() : event.target.innerText.toUpperCase()
+            let key = ''
+
+            if (event instanceof KeyboardEvent) {
+                key = event.key.toUpperCase()
+            } else {
+                key = event.target.innerText.toUpperCase()
+                event.target.blur()
+            }
+
             socket.emit('key', key)
             setUserInput({key: key, time: event.timeStamp})
         }
@@ -61,14 +69,16 @@ const GamePage = ({socket, settings, permission, getPermission}) => {
 
     return (
         <div className="gamePage">
-            <Notification visible={visible} message={message.current} position='middle-center'/>
+            <Notification 
+                visible={visible} 
+                message={message.current} 
+                position='middle-center'
+            />
 
-            <div className="playerTurn">
-                <ColoredRow 
-                    name={currentPlayer.name} 
-                    color={currentPlayer.id === socket.id ? 'green' : 'none'}
-                />
-            </div>
+            <ColoredRow 
+                name={currentPlayer.name} 
+                color={currentPlayer.id === socket.id ? 'green' : 'none'}
+            />
 
             <Game 
                 input={userInput} 
@@ -80,6 +90,7 @@ const GamePage = ({socket, settings, permission, getPermission}) => {
                 socket={socket}
                 changeTyping={changeTyping}
                 handleMessage={onMessage}
+                currentPlayer={currentPlayer}
             />
         </div>
     )

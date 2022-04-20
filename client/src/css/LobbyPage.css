@@ -33,6 +33,7 @@
 .game-settings {
     width: 70%;
     min-width: 250px;
+    max-width: 500px;
     background-color: #3a3a3c;
     color: rgb(231, 223, 223);
     font-weight: bold;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Board from './Board.jsx'
 import Keyboard from './Keyboard.jsx'
+import Timer from './Timer.jsx'
 
 const getDefaultBoxValues = () => {
     return {
@@ -78,11 +79,26 @@ const changeColorsInRow = (boardRow, word) => {
     setGreyBoxes(boardRow)
 }
 
-const Game = ({input, rowLength, colLength, word, handleKeyClick, wordList, socket, changeTyping, handleMessage}) => {
-    const message = useRef('')
+const Game = (
+    {
+        input, 
+        colLength, 
+        word, 
+        handleKeyClick, 
+        wordList, 
+        socket, 
+        changeTyping, 
+        handleMessage,
+        currentPlayer
+    }) => {
     const [board, setBoard] = useState(createMxNBoard(5, 5))
     const row = useRef(0)
     const col = useRef(0)
+
+    const getNextPlayer = () => {
+        changeTyping(false)
+        socket.emit('nextPlayer', row.current, col.current)
+    }
 
     useEffect(() => {
         socket.on('board', board => {
@@ -118,8 +134,7 @@ const Game = ({input, rowLength, colLength, word, handleKeyClick, wordList, sock
             row.current += 1
             col.current = 0
             setBoard(newBoard)
-            changeTyping(false)
-            socket.emit('nextPlayer', row.current, col.current)
+            getNextPlayer()
         } else if ((input.key === 'BACKSPACE' || input.key === 'DELETE') && isDeletable(col.current)) {
             newBoard[row.current][col.current - 1].letter = ''
             col.current -= 1
@@ -129,6 +144,11 @@ const Game = ({input, rowLength, colLength, word, handleKeyClick, wordList, sock
 
     return (
         <div className='boards'>
+            <Timer 
+                socket={socket}
+                currentPlayer={currentPlayer}
+                getNextPlayer={getNextPlayer}
+            />
             <Board board={board}/>
             <Keyboard board={board} onKeyClick={handleKeyClick}/>
         </div>

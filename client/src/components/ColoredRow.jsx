@@ -15,7 +15,6 @@ const getColorFromLetter = (color) => {
 
 const formatToRow = (word, color) => {
   let wordArray = word.toUpperCase().split('')
-  console.log(color)
   color = color.toUpperCase()
   return wordArray.map((letter, i) => ({letter: letter, color: getColorFromLetter(color)}))
 }

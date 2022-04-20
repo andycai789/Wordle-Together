@@ -1,3 +1,10 @@
 .gamePage {
     min-width: 320px;
 }
+
+.timer {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+

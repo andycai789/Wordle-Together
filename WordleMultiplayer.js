@@ -76,6 +76,7 @@ class WordleMultiplayer {
       game.inLobby = true
     } else if (dcPlayerIndex === 0) {
       io.to("room" + roomID).emit("setCurrentPlayer", players[0])
+      io.to('room' + roomID).emit('resetTimer')
       io.to(players[0].id).emit('canType', game.wordle.getRow(), game.wordle.getCol())
     }
   }
@@ -121,10 +122,6 @@ class WordleMultiplayer {
         socket.emit('validCode')
         console.log(player.name + " joined " + roomID)
       } else {
-        // this.emitJoinRoom(socket, player, roomID)
-        // this.
-
-
         socket.emit('alreadyInGame')
       }
     } else {
@@ -196,7 +193,7 @@ class WordleMultiplayer {
     io.to(players[0].id).emit('canType', 0, 0)
   }
 
-  emitNewKey(socket, key) {
+  emitNewKey(io, socket, key) {
     const roomID = this.getRoomID(socket.id)
     const wordle = this.getGame(roomID).wordle
 
@@ -205,15 +202,15 @@ class WordleMultiplayer {
 
       if (wordle.isEndGame()) {
         if (result.win) {
-          socket.emit('gameNotification', "YOU WON!")
+          io.to("room" + roomID).emit('gameNotification', "YOU WON!")
           setTimeout(() => {
-            socket.emit('gameNotification', "Redirecting WINNERS to lobby..." )
+            io.to("room" + roomID).emit('gameNotification', "Redirecting WINNERS to lobby..." )
           }, 3000)
 
         } else {
-          socket.emit('gameNotification', wordle.word)
+          io.to("room" + roomID).emit('gameNotification', wordle.word)
           setTimeout(() => {
-            socket.emit('gameNotification', "Redirecting LOSERS to lobby..." )
+            io.to("room" + roomID).emit('gameNotification', "Redirecting LOSERS to lobby..." )
           }, 3000)
         }
       }
@@ -237,6 +234,7 @@ class WordleMultiplayer {
     const roomID = this.getRoomID(nextPlayer.id)
     io.to(nextPlayer.id).emit('canType', row, col)
     io.to("room" + roomID).emit('setCurrentPlayer', nextPlayer)
+    io.to('room' + roomID).emit('resetTimer')
   }
 
   emitNextPlayer(io, socket, row, col) {
@@ -251,6 +249,7 @@ class WordleMultiplayer {
     players.push(currentPlayer)
 
     if (wordle.isEndGame()) {
+      io.to('room' + roomID).emit('endGame')
       this.pushLeaderToTop(players)
       this.emitNavigateToLobby(io, roomID)
       game.inLobby = true

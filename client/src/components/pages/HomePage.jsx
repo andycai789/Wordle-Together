@@ -71,9 +71,10 @@ const HomePage = ({socket, permission}) => {
     })
 
     socket.on('alreadyInGame', () => {
+      message.current = 'Game in progress.'
+      setVisible(true)
+      setTimeout(() => setVisible(false), 3000)
       allowSubmit.current = true
-      // permission.current = 'game'
-      // navigate('/lobby', {replace: true})
     })
   }, [])
 

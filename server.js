@@ -52,6 +52,7 @@ io.on('connection', socket => {
 
   socket.on('startGame', () => {
     wmp.emitStartGame(io, socket)
+    wmp.printMaps()
   })  
 
   socket.on('initialGameSettings', () => {
@@ -59,7 +60,7 @@ io.on('connection', socket => {
   })
 
   socket.on('key', key => {
-    wmp.emitNewKey(socket, key)
+    wmp.emitNewKey(io, socket, key)
   })
 
   socket.on('nextPlayer', (row, col) => {
