@@ -57,6 +57,11 @@ const HomePage = ({socket, permission}) => {
   }
 
   useEffect(() => {
+    socket.on('disconnect', () => {
+      permission.current = 'home'
+      navigate('/', {replace: true})
+    })
+
     socket.on('validCode', () => {
       permission.current = 'lobby'
       navigate('/lobby', {replace: true})

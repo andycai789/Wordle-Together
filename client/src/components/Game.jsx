@@ -92,6 +92,7 @@ const Game = (
         currentPlayer
     }) => {
     const [board, setBoard] = useState(createMxNBoard(5, 5))
+    const maxTime = 4
     const row = useRef(0)
     const col = useRef(0)
 
@@ -145,9 +146,11 @@ const Game = (
     return (
         <div className='boards'>
             <Timer 
+                maxTime={maxTime}
                 socket={socket}
                 currentPlayer={currentPlayer}
                 getNextPlayer={getNextPlayer}
+                changeTyping={changeTyping}
             />
             <Board board={board}/>
             <Keyboard board={board} onKeyClick={handleKeyClick}/>

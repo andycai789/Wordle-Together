@@ -1,22 +1,20 @@
 import {React, useEffect, useState, useRef} from 'react'
 import Box from './Box.jsx';
 
-// the problem is that when you enter a correct word near the end, emitnextplayer is done twice
-
-
-const Timer = ({socket, currentPlayer, getNextPlayer}) => {
-    const [seconds, setSeconds] = useState(10)
+const Timer = ({maxTime, socket, currentPlayer, getNextPlayer, changeTyping}) => {
+    const [playerSeconds, setPlayerSeconds] = useState(maxTime)
+    const [timerSeconds, setTimerSeconds] = useState(maxTime + 1)
     const inGame = useRef(true)
 
     useEffect(() => {
         socket.on('resetTimer', () => {
-            setSeconds(10)
+            setPlayerSeconds(maxTime)
+            setTimerSeconds(maxTime + 1)
         })
 
         socket.on('endGame', () => {
             inGame.current = false
         })
-
     }, [])
 
     useEffect(() => {
@@ -25,27 +23,33 @@ const Timer = ({socket, currentPlayer, getNextPlayer}) => {
         }
 
         const timer = setTimeout(function() {
-            if (seconds === 0 && inGame.current) {
-                if (currentPlayer.id === socket.id) {
-                    getNextPlayer()
-                }
-                return
+            if (playerSeconds === 0) {
+                changeTyping(false)
+            } else {
+                setPlayerSeconds(seconds => seconds - 1)
             }
 
-            if (seconds > 0) {
-                setSeconds(seconds => seconds - 1)
+            if (timerSeconds === 0 && currentPlayer.id === socket.id) {
+                getNextPlayer()
+            } else {
+                setTimerSeconds(seconds => seconds - 1)
             }
+
+            console.log("Player: "  + playerSeconds)
+            console.log("Timer: " + timerSeconds)
+            console.log(socket.id  === currentPlayer.id)
+
         }, 1000); 
 
         return () => {
             window.clearTimeout(timer);
         }
-    }, [seconds])
+    }, [playerSeconds, timerSeconds])
 
     return (
         <div className="timer">
-            <Box color='' letter={Math.floor(seconds / 10)}/>
-            <Box color='' letter={seconds % 10}/>
+            <Box color='' letter={Math.floor(playerSeconds / 10)}/>
+            <Box color='' letter={playerSeconds % 10}/>
         </div>
     )
 }
