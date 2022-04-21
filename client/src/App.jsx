@@ -28,6 +28,7 @@ function App() {
       <Header/>
       <Routes> 
         <Route path='/' element={<HomePage socket={socket} permission={permission}/>}/>
+        <Route path='/:code' element={<HomePage socket={socket} permission={permission}/>}/>
         <Route path='/lobby' element={<LobbyPage socket={socket} permission={permission} getPermission={getPermission} onSettingsChange={setSettings}/>}/>
         <Route path='/game' element={<GamePage socket={socket} permission={permission} getPermission={getPermission} settings={settings}/>}/> 
       </Routes>

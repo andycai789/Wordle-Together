@@ -1,5 +1,5 @@
 import {useState, useRef, useEffect} from 'react'
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import '../../css/HomePage.css';
 import ColoredRow from '../ColoredRow.jsx';
 import Notification from '../Notification.jsx'
@@ -14,6 +14,8 @@ const HomePage = ({socket, permission}) => {
   const allowSubmit = useRef(true)
   const message = useRef('')
   const [visible, setVisible] = useState(false)
+
+  const {code} = useParams()
 
   const changeName = (event)=>{
     name.current = event.target.value.toUpperCase().padEnd(6, '-')
@@ -56,6 +58,10 @@ const HomePage = ({socket, permission}) => {
   }
 
   useEffect(() => {
+    if (code !== undefined) {
+      roomCode.current = code
+    }
+
     socket.on('disconnect', () => {
       navigate('/', {replace: true})
     })
@@ -91,25 +97,31 @@ const HomePage = ({socket, permission}) => {
         <input className='inputBar' id='nameInputBar' type="text" name="name" maxLength="16" onChange={changeName}/>
       </form>
 
-      <div className='lobbyButtonContainer'>
-        <div className='lobbyButton' onClick={createRoom} onMouseEnter={() => setCreateLight("yellow")} onMouseLeave={() => setCreateLight("none")}>
-          <ColoredRow name="CREATE" color={createColor}/>
-          <ColoredRow name="ROOM" color={createColor}/> 
+      {!code && 
+        <div className='lobbyButtonContainer'>
+          <div className='lobbyButton' onClick={createRoom} onMouseEnter={() => setCreateLight("yellow")} onMouseLeave={() => setCreateLight("none")}>
+            <ColoredRow name="CREATE" color={createColor}/>
+            <ColoredRow name="-ROOM-" color={createColor}/> 
+          </div>
         </div>
-      </div>
-
-      <div className='lobbyButtonContainer'> 
-        <div className='lobbyButton' onClick={submitCode} onMouseEnter={() => setJoinLight("green")} onMouseLeave={() => setJoinLight("none")}>
-          <ColoredRow name="JOIN" color={joinColor}/>
-          <ColoredRow name="ROOM" color={joinColor}/> 
+      }
+      
+      {code && 
+        <div className='lobbyButtonContainer'> 
+          <div className='lobbyButton' onClick={submitCode} onMouseEnter={() => setJoinLight("green")} onMouseLeave={() => setJoinLight("none")}>
+            <ColoredRow name="JOIN" color={joinColor}/>
+            <ColoredRow name="ROOM" color={joinColor}/> 
+          </div>
         </div>
-      </div>
+      }
 
-      <div>
-        <form className='input' autoComplete="off" onSubmit={handleSubmitCode} onChange={changeRoomCode}>
-          <input className='inputBar' id='codeInputBar' type="text" name="name"/>
-        </form>
-      </div>
+      {code && 
+        <div>
+          <form className='input' autoComplete="off" onSubmit={handleSubmitCode} onChange={changeRoomCode}>
+            <input className='inputBar' defaultValue={code} id='codeInputBar' type="text" name="name"/>
+          </form>
+        </div>
+      }
 
       <div style={{marginTop: '20px'}}>
         <Notification visible={visible} message={message.current} position='middle-center'/>

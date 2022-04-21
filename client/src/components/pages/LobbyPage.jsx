@@ -3,6 +3,8 @@ import {useState, useEffect} from 'react'
 import '../../css/LobbyPage.css';
 import ColoredRow from '../ColoredRow.jsx';
 
+import {Tooltip, OverlayTrigger} from 'react-bootstrap'
+
 const LobbyPage = ({socket, onSettingsChange, permission, getPermission}) => {
     const [rowInput, setRowInput] = useState(5)
     const [colInput, setColInput] = useState(5)
@@ -38,6 +40,15 @@ const LobbyPage = ({socket, onSettingsChange, permission, getPermission}) => {
         }
     }
 
+    const copyLink = () => {
+        navigator.clipboard.writeText(window.location.origin + '/' + roomCode);
+    }
+
+    const renderTooltip = (props) => (
+        <Tooltip id="button-tooltip" {...props}>
+          Copy sharable link
+        </Tooltip>)
+
     useEffect(() => {
         if (getPermission() !== 'lobby') {
             navigate('/', {replace: true})
@@ -65,8 +76,18 @@ const LobbyPage = ({socket, onSettingsChange, permission, getPermission}) => {
                 <div className='game-title'> Settings </div>
 
                 <div className='settingsForm'>
-                    <div> Code: </div>
-                    {roomCode}
+                    <div> Room Link: </div>
+
+                    <OverlayTrigger
+                        placement="top"
+                        delay={{ show: 250, hide: 400 }}
+                        overlay={renderTooltip}>
+
+                        <button id="sharableLink" onClick={copyLink}> 
+                            {window.location.origin + '/' + roomCode} 
+                        </button>
+
+                    </OverlayTrigger>
                 </div>
 
                 <div className='settingsForm'>

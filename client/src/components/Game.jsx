@@ -92,7 +92,7 @@ const Game = (
         currentPlayer
     }) => {
     const [board, setBoard] = useState(createMxNBoard(5, 5))
-    const maxTime = 5
+    const maxTime = 10
     const row = useRef(0)
     const col = useRef(0)
     const [alreadyEmit, setAlreadyEmit] = useState(false)

@@ -23,3 +23,36 @@
     background-color: grey;
     border-radius: 8px;
 }
+
+@media screen and (max-height: 850px) {
+    .board {
+        height: 300px;
+    }
+}
+
+@media screen and (max-height: 800px) {
+    .board {
+        height: 250px;
+    }
+}
+
+
+@media screen and (max-height: 750px) {
+    .board {
+        height: 200px;
+    }
+}
+
+
+@media screen and (max-height: 700px) {
+    .board {
+        height: 150px;
+    }
+}
+
+
+@media screen and (max-height: 650px) {
+    .board {
+        height: 100px;
+    }
+}

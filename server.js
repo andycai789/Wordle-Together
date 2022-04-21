@@ -64,7 +64,6 @@ io.on('connection', socket => {
   })
 
   socket.on('nextPlayer', (row, col) => {
-    console.log("got next player " + row + " " + col)
     wmp.emitNextPlayer(io, socket, row, col)
   })
 })

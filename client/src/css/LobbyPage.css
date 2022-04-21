@@ -45,6 +45,12 @@
     margin: 30px;
 }
 
+#sharableLink {
+    word-wrap: break-word;
+    font-weight: 500;
+}
+
+
 @media screen and (min-width: 800px) {
     .lobbyPage {
         flex-direction: row;
