@@ -15,7 +15,6 @@ const HomePage = ({socket, permission}) => {
   const message = useRef('')
   const [visible, setVisible] = useState(false)
 
-
   const changeName = (event)=>{
     name.current = event.target.value.toUpperCase().padEnd(6, '-')
   };
@@ -58,7 +57,6 @@ const HomePage = ({socket, permission}) => {
 
   useEffect(() => {
     socket.on('disconnect', () => {
-      permission.current = 'home'
       navigate('/', {replace: true})
     })
 
@@ -113,7 +111,10 @@ const HomePage = ({socket, permission}) => {
         </form>
       </div>
 
-      <Notification visible={visible} message={message.current} position='middle-center'/>
+      <div style={{marginTop: '20px'}}>
+        <Notification visible={visible} message={message.current} position='middle-center'/>
+      </div>
+
     </div>
   )
 }

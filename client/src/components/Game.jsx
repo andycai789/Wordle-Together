@@ -92,10 +92,11 @@ const Game = (
         currentPlayer
     }) => {
     const [board, setBoard] = useState(createMxNBoard(5, 5))
-    const maxTime = 4
+    const maxTime = 5
     const row = useRef(0)
     const col = useRef(0)
-
+    const [alreadyEmit, setAlreadyEmit] = useState(false)
+ 
     const getNextPlayer = () => {
         changeTyping(false)
         socket.emit('nextPlayer', row.current, col.current)
@@ -110,6 +111,8 @@ const Game = (
             row.current = newRow
             col.current = newCol
             changeTyping(true)
+            setAlreadyEmit(false)
+            handleMessage('Your turn.')
         })
     }, [])
 
@@ -135,6 +138,7 @@ const Game = (
             row.current += 1
             col.current = 0
             setBoard(newBoard)
+            setAlreadyEmit(true)
             getNextPlayer()
         } else if ((input.key === 'BACKSPACE' || input.key === 'DELETE') && isDeletable(col.current)) {
             newBoard[row.current][col.current - 1].letter = ''
@@ -151,6 +155,7 @@ const Game = (
                 currentPlayer={currentPlayer}
                 getNextPlayer={getNextPlayer}
                 changeTyping={changeTyping}
+                alreadyEmit={alreadyEmit}
             />
             <Board board={board}/>
             <Keyboard board={board} onKeyClick={handleKeyClick}/>

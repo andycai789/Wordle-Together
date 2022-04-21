@@ -7,7 +7,7 @@ const WordleMultiplayer = require('./WordleMultiplayer.js')
 const port = process.env.PORT || 5000
 const app = express()
 const server = http.createServer(app)
-const io = socketio(server , {'pingInterval': 2000, 'pingTimeout': 3000})
+const io = socketio(server)
 
 const wmp = new WordleMultiplayer()
 
@@ -21,7 +21,7 @@ app.use((req, res, next) => {
 io.on('connection', socket => {
   console.log(socket.id + " connected") 
 
-  socket.on('disconnect', () => {``
+  socket.on('disconnect', () => {
     console.log(socket.id + " disconnected")
     wmp.disconnectPlayer(io, socket)
     wmp.printMaps()
@@ -64,6 +64,7 @@ io.on('connection', socket => {
   })
 
   socket.on('nextPlayer', (row, col) => {
+    console.log("got next player " + row + " " + col)
     wmp.emitNextPlayer(io, socket, row, col)
   })
 })
@@ -71,5 +72,6 @@ io.on('connection', socket => {
 server.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
+
 
 
